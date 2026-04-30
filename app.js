@@ -1,9 +1,78 @@
+// ---------- PROFILES ----------
+function loadProfiles() {
+  try {
+    const raw = localStorage.getItem("lgosProfiles");
+    if (!raw) return [];
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
+}
+
+function saveProfiles(profiles) {
+  localStorage.setItem("lgosProfiles", JSON.stringify(profiles));
+}
+
+function setActiveProfile(profile) {
+  localStorage.setItem("lgosActiveProfile", JSON.stringify(profile));
+  const topUser = document.getElementById("topbar-user");
+  if (topUser) topUser.textContent = profile.name || "Guest";
+}
+
+function getActiveProfile() {
+  try {
+    const raw = localStorage.getItem("lgosActiveProfile");
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+function renderProfileList() {
+  const list = document.getElementById("profile-list");
+  const profiles = loadProfiles();
+  list.innerHTML = "";
+
+  profiles.forEach((p, index) => {
+    const item = document.createElement("div");
+    item.className = "profile-item";
+    item.innerHTML = `
+      <span>${p.name}</span>
+      <div>
+        <button data-profile-index="${index}" data-action="use">Use</button>
+        <button data-profile-index="${index}" data-action="delete">✕</button>
+      </div>
+    `;
+    list.appendChild(item);
+  });
+
+  list.querySelectorAll("button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const idx = parseInt(btn.getAttribute("data-profile-index"), 10);
+      const action = btn.getAttribute("data-action");
+      const profiles = loadProfiles();
+      if (action === "use") {
+        const profile = profiles[idx];
+        setActiveProfile(profile);
+        showOS();
+        addNotification("Profile", `Signed in as ${profile.name}`);
+      } else if (action === "delete") {
+        profiles.splice(idx, 1);
+        saveProfiles(profiles);
+        renderProfileList();
+      }
+    });
+  });
+}
+
 // ---------- BOOT + LOGIN FLOW ----------
 function showLogin() {
   const boot = document.getElementById("boot-screen");
   const login = document.getElementById("login-screen");
   boot.classList.add("hidden");
   login.classList.remove("hidden");
+  renderProfileList();
 }
 
 function showOS() {
@@ -11,6 +80,13 @@ function showOS() {
   const os = document.getElementById("os-shell");
   login.classList.add("hidden");
   os.classList.remove("hidden");
+
+  const active = getActiveProfile();
+  if (active) {
+    setActiveProfile(active);
+  } else {
+    setActiveProfile({ name: "Guest" });
+  }
 }
 
 function setupBootAndLogin() {
@@ -18,11 +94,21 @@ function setupBootAndLogin() {
 
   const loginBtn = document.getElementById("login-button");
   loginBtn.addEventListener("click", () => {
-    const name = document.getElementById("login-name").value.trim();
-    if (name) {
-      localStorage.setItem("lgosUserName", name);
-    }
+    const name = document.getElementById("login-name").value.trim() || "Guest";
+    const profiles = loadProfiles();
+    const profile = { id: Date.now(), name };
+    profiles.push(profile);
+    saveProfiles(profiles);
+    setActiveProfile(profile);
     showOS();
+    addNotification("Profile", `Created and signed in as ${name}`);
+  });
+
+  const switchUserBtn = document.getElementById("btn-switch-user");
+  switchUserBtn.addEventListener("click", () => {
+    document.getElementById("os-shell").classList.add("hidden");
+    document.getElementById("login-screen").classList.remove("hidden");
+    renderProfileList();
   });
 }
 
@@ -31,6 +117,9 @@ const windows = {
   browser: document.getElementById("window-browser"),
   movies: document.getElementById("window-movies"),
   settings: document.getElementById("window-settings"),
+  chatcord: document.getElementById("window-chatcord"),
+  appstore: document.getElementById("window-appstore"),
+  notifications: document.getElementById("window-notifications"),
 };
 
 function openWindow(name) {
@@ -112,6 +201,23 @@ function setupLaunchers() {
       }
     });
   });
+
+  // App store buttons
+  document.querySelectorAll("[data-open-app]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const app = btn.getAttribute("data-open-app");
+      openWindow(app);
+    });
+  });
+
+  document.getElementById("btn-appstore").addEventListener("click", () => {
+    openWindow("appstore");
+  });
+
+  document.getElementById("btn-notifications").addEventListener("click", () => {
+    openWindow("notifications");
+    clearNotificationBadge();
+  });
 }
 
 // ---------- CLOSE BUTTONS ----------
@@ -156,6 +262,7 @@ function setupThemes() {
       const theme = btn.getAttribute("data-theme");
       document.documentElement.setAttribute("data-theme", theme);
       localStorage.setItem("liquidGlassTheme", theme);
+      addNotification("Theme", `Switched to ${theme} theme`);
     });
   });
 
@@ -176,6 +283,7 @@ function setupWallpapers() {
     btn.addEventListener("click", () => {
       const id = btn.getAttribute("data-wallpaper");
       applyWallpaper(id);
+      addNotification("Wallpaper", `Wallpaper ${id} applied`);
     });
   });
 
@@ -261,9 +369,62 @@ function setupWebAppCreator() {
     const id = createCustomApp(name, url);
     apps.push({ id, name, url });
     saveCustomApps(apps);
-
+    addNotification("Web App", `Created app "${name}"`);
     form.reset();
   });
+}
+
+// ---------- NOTIFICATIONS ----------
+function loadNotifications() {
+  try {
+    const raw = localStorage.getItem("liquidGlassNotifications");
+    if (!raw) return [];
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
+}
+
+function saveNotifications(notifs) {
+  localStorage.setItem("liquidGlassNotifications", JSON.stringify(notifs));
+}
+
+function renderNotifications() {
+  const list = document.getElementById("notifications-list");
+  const notifs = loadNotifications();
+  list.innerHTML = "";
+  notifs
+    .slice()
+    .reverse()
+    .forEach((n) => {
+      const li = document.createElement("li");
+      li.className = "notification-item";
+      li.innerHTML = `
+        <div class="notification-item-title">${n.title}</div>
+        <div>${n.message}</div>
+        <div class="notification-item-time">${n.time}</div>
+      `;
+      list.appendChild(li);
+    });
+}
+
+function addNotification(title, message) {
+  const notifs = loadNotifications();
+  const time = new Date().toLocaleTimeString();
+  notifs.push({ title, message, time });
+  saveNotifications(notifs);
+  renderNotifications();
+  showNotificationBadge();
+}
+
+function showNotificationBadge() {
+  const badge = document.getElementById("notif-badge");
+  badge.classList.remove("hidden");
+}
+
+function clearNotificationBadge() {
+  const badge = document.getElementById("notif-badge");
+  badge.classList.add("hidden");
 }
 
 // ---------- WINDOW FOCUS ----------
@@ -284,4 +445,5 @@ window.addEventListener("DOMContentLoaded", () => {
   setupWebAppCreator();
   setupWindowFocus();
   setupWindowDrag();
+  renderNotifications();
 });
