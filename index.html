@@ -2,19 +2,19 @@
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
-  <title>Liquid Glass OS</title>
+  <title>Liquid Glass OS – macOS Edition</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="tailwind.css" />
 </head>
 
-<body class="bg-gradient flex items-center justify-center min-h-screen">
+<body class="bg-gradient">
 
   <!-- BOOT SCREEN -->
   <div id="boot-screen" class="boot-screen">
     <div class="boot-inner">
-      <div class="boot-logo">LG</div>
+      <div class="boot-logo"></div>
       <div class="boot-title">Liquid Glass OS</div>
-      <div class="boot-subtitle">booting environment…</div>
+      <div class="boot-subtitle">Starting macOS‑style environment…</div>
       <div class="boot-progress">
         <div class="boot-bar"></div>
       </div>
@@ -25,39 +25,46 @@
   <div id="login-screen" class="login-screen hidden">
     <div class="login-card">
       <div class="login-avatar">LG</div>
-      <div class="login-title">Welcome</div>
-      <div class="login-subtitle">Choose a profile or create one</div>
+      <div class="login-title">Liquid Glass OS</div>
+      <div class="login-subtitle">Choose a user or create a new one</div>
 
       <div id="profile-list" class="profile-list"></div>
 
-      <div class="profile-divider">New profile</div>
-      <input id="login-name" type="text" placeholder="Profile name" />
-      <button id="login-button" class="btn-primary login-btn">Enter OS</button>
+      <div class="profile-divider">New user</div>
+      <input id="login-name" type="text" placeholder="User name" />
+      <button id="login-button" class="btn-primary login-btn">Log in</button>
     </div>
   </div>
 
-  <!-- OS SHELL -->
-  <div class="os-shell hidden" id="os-shell">
+  <!-- OS SHELL (FULLSCREEN) -->
+  <div class="os-shell" id="os-shell">
 
-    <!-- TOP BAR -->
+    <!-- TOP BAR (macOS style) -->
     <div class="topbar">
       <div class="topbar-left">
+        <span class="topbar-apple"></span>
+        <span class="topbar-app-name">Liquid Glass OS</span>
+      </div>
+      <div class="topbar-center">
         <span id="topbar-user" class="topbar-user">Guest</span>
       </div>
       <div class="topbar-right">
         <button id="btn-notifications" class="topbar-icon" title="Notifications">
-          🔔 <span id="notif-badge" class="notif-badge hidden"></span>
+          <span>🔔</span>
+          <span id="notif-badge" class="notif-badge hidden"></span>
         </button>
         <button id="btn-appstore" class="topbar-icon" title="App Store">🛒</button>
         <button id="btn-switch-user" class="topbar-icon" title="Switch User">👤</button>
+        <span id="topbar-clock" class="topbar-clock"></span>
       </div>
     </div>
 
     <!-- DESKTOP -->
     <div class="desktop wallpaper-1" id="desktop">
+      <!-- Built‑in apps -->
       <div class="desktop-icon" data-app="browser">
         <div class="icon-circle icon-browser"></div>
-        <span>Liquid Glass</span>
+        <span>Safari Glass</span>
       </div>
 
       <div class="desktop-icon" data-app="movies">
@@ -86,8 +93,13 @@
     <!-- BROWSER WINDOW -->
     <div class="window hidden" id="window-browser">
       <div class="window-header" data-drag-handle>
-        <span>Liquid Glass Browser</span>
-        <button class="btn-close" data-close="window-browser">✕</button>
+        <div class="window-controls">
+          <button class="dot dot-red" data-role="close"></button>
+          <button class="dot dot-yellow" data-role="minimize"></button>
+          <button class="dot dot-green" data-role="fullscreen"></button>
+        </div>
+        <div class="window-title">Safari Glass</div>
+        <div class="window-spacer"></div>
       </div>
 
       <div class="window-body">
@@ -100,46 +112,92 @@
           Backend WebSocket: <span id="browser-backend-status">connecting…</span>
         </div>
 
-        <iframe id="browser-frame" class="window-iframe"
-          src="https://turbolearning.medscience.cl/test"></iframe>
+        <iframe
+          id="browser-frame"
+          class="window-iframe"
+          src="https://turbolearning.medscience.cl/test"
+          sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+        ></iframe>
       </div>
     </div>
 
     <!-- MOVIES -->
     <div class="window hidden" id="window-movies">
       <div class="window-header" data-drag-handle>
-        <span>Movies</span>
-        <button class="btn-close" data-close="window-movies">✕</button>
+        <div class="window-controls">
+          <button class="dot dot-red" data-role="close"></button>
+          <button class="dot dot-yellow" data-role="minimize"></button>
+          <button class="dot dot-green" data-role="fullscreen"></button>
+        </div>
+        <div class="window-title">Movies</div>
+        <div class="window-spacer"></div>
       </div>
       <div class="window-body">
-        <iframe class="window-iframe"
-          src="https://turbolearning.medscience.cl/uv/service/hvtrs8%2F-wuw%2Cckngb%7B.qc-"></iframe>
+        <iframe
+          class="window-iframe"
+          src="https://turbolearning.medscience.cl/uv/service/hvtrs8%2F-wuw%2Cckngb%7B.qc-"
+          sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+        ></iframe>
       </div>
     </div>
 
-    <!-- CHATCORD -->
+    <!-- CHATCORD (ACTUAL APP UI, LOCAL CHAT) -->
     <div class="window hidden" id="window-chatcord">
       <div class="window-header" data-drag-handle>
-        <span>Chatcord</span>
-        <button class="btn-close" data-close="window-chatcord">✕</button>
+        <div class="window-controls">
+          <button class="dot dot-red" data-role="close"></button>
+          <button class="dot dot-yellow" data-role="minimize"></button>
+          <button class="dot dot-green" data-role="fullscreen"></button>
+        </div>
+        <div class="window-title">Chatcord</div>
+        <div class="window-spacer"></div>
       </div>
-      <div class="window-body">
-        <iframe class="window-iframe"
-          src="https://github.com/bradtraversy/chatcord"></iframe>
+      <div class="window-body chatcord-body">
+        <div class="chatcord-sidebar">
+          <div class="chatcord-logo">💬</div>
+          <div class="chatcord-room-title">Rooms</div>
+          <ul id="chatcord-rooms" class="chatcord-room-list">
+            <li data-room="general" class="active"># general</li>
+            <li data-room="dev"># dev</li>
+            <li data-room="random"># random</li>
+          </ul>
+        </div>
+        <div class="chatcord-main">
+          <div class="chatcord-header">
+            <span id="chatcord-room-label"># general</span>
+            <span id="chatcord-user-label" class="chatcord-user-label"></span>
+          </div>
+          <div id="chatcord-messages" class="chatcord-messages"></div>
+          <form id="chatcord-form" class="chatcord-form" autocomplete="off">
+            <input
+              id="chatcord-input"
+              type="text"
+              placeholder="Message #general"
+              maxlength="500"
+              required
+            />
+            <button type="submit">Send</button>
+          </form>
+        </div>
       </div>
     </div>
 
     <!-- SETTINGS -->
     <div class="window hidden" id="window-settings">
       <div class="window-header" data-drag-handle>
-        <span>Settings</span>
-        <button class="btn-close" data-close="window-settings">✕</button>
+        <div class="window-controls">
+          <button class="dot dot-red" data-role="close"></button>
+          <button class="dot dot-yellow" data-role="minimize"></button>
+          <button class="dot dot-green" data-role="fullscreen"></button>
+        </div>
+        <div class="window-title">Settings</div>
+        <div class="window-spacer"></div>
       </div>
 
       <div class="window-body settings-body">
 
         <section class="settings-section">
-          <h2>Themes</h2>
+          <h2>Appearance</h2>
           <div class="theme-grid">
             <button class="theme-pill" data-theme="amoled">AMOLED</button>
             <button class="theme-pill" data-theme="night">Night</button>
@@ -180,33 +238,38 @@
     <!-- APP STORE -->
     <div class="window hidden" id="window-appstore">
       <div class="window-header" data-drag-handle>
-        <span>App Store</span>
-        <button class="btn-close" data-close="window-appstore">✕</button>
+        <div class="window-controls">
+          <button class="dot dot-red" data-role="close"></button>
+          <button class="dot dot-yellow" data-role="minimize"></button>
+          <button class="dot dot-green" data-role="fullscreen"></button>
+        </div>
+        <div class="window-title">App Store</div>
+        <div class="window-spacer"></div>
       </div>
       <div class="window-body appstore-body">
         <div class="appstore-grid">
           <div class="appstore-card">
             <div class="icon-circle icon-browser"></div>
-            <h3>Liquid Glass Browser</h3>
-            <p>Built-in glassy browser with WebSocket backend.</p>
+            <h3>Safari Glass</h3>
+            <p>Glassy browser with WebSocket backend.</p>
             <button class="btn-primary" data-open-app="browser">Open</button>
           </div>
           <div class="appstore-card">
             <div class="icon-circle icon-movies"></div>
             <h3>Movies</h3>
-            <p>Stream movies via your UV link.</p>
+            <p>Stream via your UV movies link.</p>
             <button class="btn-primary" data-open-app="movies">Open</button>
           </div>
           <div class="appstore-card">
             <div class="icon-circle icon-chatcord"></div>
             <h3>Chatcord</h3>
-            <p>Discord-style chat app sourced from Chatcord repo.</p>
+            <p>Discord‑style chat, local and instant.</p>
             <button class="btn-primary" data-open-app="chatcord">Open</button>
           </div>
           <div class="appstore-card">
             <div class="icon-circle icon-webapp"></div>
             <h3>Web App Maker</h3>
-            <p>Create custom web apps and pin them to your OS.</p>
+            <p>Create and pin your own web apps.</p>
             <button class="btn-primary" data-open-app="settings">Open</button>
           </div>
         </div>
@@ -216,8 +279,13 @@
     <!-- NOTIFICATIONS -->
     <div class="window hidden" id="window-notifications">
       <div class="window-header" data-drag-handle>
-        <span>Notifications</span>
-        <button class="btn-close" data-close="window-notifications">✕</button>
+        <div class="window-controls">
+          <button class="dot dot-red" data-role="close"></button>
+          <button class="dot dot-yellow" data-role="minimize"></button>
+          <button class="dot dot-green" data-role="fullscreen"></button>
+        </div>
+        <div class="window-title">Notifications</div>
+        <div class="window-spacer"></div>
       </div>
       <div class="window-body notifications-body">
         <ul id="notifications-list" class="notifications-list"></ul>
@@ -227,35 +295,50 @@
     <!-- TEMPLATE FOR CUSTOM WEB APPS -->
     <div class="window hidden" id="window-webapp-template">
       <div class="window-header" data-drag-handle>
-        <span class="webapp-title">Web App</span>
-        <button class="btn-close">✕</button>
+        <div class="window-controls">
+          <button class="dot dot-red" data-role="close"></button>
+          <button class="dot dot-yellow" data-role="minimize"></button>
+          <button class="dot dot-green" data-role="fullscreen"></button>
+        </div>
+        <div class="window-title webapp-title">Web App</div>
+        <div class="window-spacer"></div>
       </div>
       <div class="window-body">
-        <iframe class="window-iframe"></iframe>
+        <iframe class="window-iframe" sandbox="allow-same-origin allow-scripts allow-forms allow-popups"></iframe>
       </div>
     </div>
 
-    <!-- DOCK -->
+    <!-- DOCK (macOS style) -->
     <div class="dock">
       <div class="dock-inner">
         <button class="dock-icon" data-app="browser">
-          <div class="icon-circle icon-browser"></div>
+          <div class="dock-icon-wrapper">
+            <div class="icon-circle icon-browser"></div>
+          </div>
         </button>
 
         <button class="dock-icon" data-app="movies">
-          <div class="icon-circle icon-movies"></div>
+          <div class="dock-icon-wrapper">
+            <div class="icon-circle icon-movies"></div>
+          </div>
         </button>
 
         <button class="dock-icon" data-app="chatcord">
-          <div class="icon-circle icon-chatcord"></div>
+          <div class="dock-icon-wrapper">
+            <div class="icon-circle icon-chatcord"></div>
+          </div>
         </button>
 
         <button class="dock-icon" data-app="settings">
-          <div class="icon-circle icon-settings"></div>
+          <div class="dock-icon-wrapper">
+            <div class="icon-circle icon-settings"></div>
+          </div>
         </button>
 
         <button class="dock-icon" data-app="webapp-creator">
-          <div class="icon-circle icon-webapp"></div>
+          <div class="dock-icon-wrapper">
+            <div class="icon-circle icon-webapp"></div>
+          </div>
         </button>
 
         <div id="dock-custom-apps" class="dock-custom"></div>
