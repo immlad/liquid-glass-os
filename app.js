@@ -126,12 +126,22 @@ function openWindow(name) {
   const win = windows[name];
   if (!win) return;
   win.classList.remove("hidden");
+  win.classList.remove("window-fullscreen");
   bringToFront(win);
+  bounceDockIcon(name);
 }
 
-function closeWindowById(id) {
-  const win = document.getElementById(id);
-  if (win) win.classList.add("hidden");
+function closeWindow(win) {
+  win.classList.add("hidden");
+}
+
+function minimizeWindow(win) {
+  win.classList.add("hidden");
+}
+
+function toggleFullscreenWindow(win) {
+  win.classList.toggle("window-fullscreen");
+  bringToFront(win);
 }
 
 function bringToFront(win) {
@@ -155,6 +165,7 @@ function makeWindowDraggable(win) {
   let startTop = 0;
 
   header.addEventListener("mousedown", (e) => {
+    if (e.target.closest(".window-controls")) return;
     isDragging = true;
     bringToFront(win);
     const rect = win.getBoundingClientRect();
@@ -186,6 +197,28 @@ function makeWindowDraggable(win) {
 
 function setupWindowDrag() {
   document.querySelectorAll(".window").forEach((win) => makeWindowDraggable(win));
+}
+
+// ---------- macOS TRAFFIC LIGHTS ----------
+function setupTrafficLights() {
+  document.querySelectorAll(".window").forEach((win) => {
+    const controls = win.querySelector(".window-controls");
+    if (!controls) return;
+
+    controls.querySelectorAll(".dot").forEach((dot) => {
+      const role = dot.getAttribute("data-role");
+      dot.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (role === "close") {
+          closeWindow(win);
+        } else if (role === "minimize") {
+          minimizeWindow(win);
+        } else if (role === "fullscreen") {
+          toggleFullscreenWindow(win);
+        }
+      });
+    });
+  });
 }
 
 // ---------- LAUNCHERS ----------
@@ -220,11 +253,28 @@ function setupLaunchers() {
   });
 }
 
-// ---------- CLOSE BUTTONS ----------
+// ---------- DOCK BOUNCE ----------
+function bounceDockIcon(appName) {
+  const dockBtn = document.querySelector(`.dock-icon[data-app="${appName}"]`);
+  if (!dockBtn) return;
+  const wrapper = dockBtn.querySelector(".dock-icon-wrapper");
+  if (!wrapper) return;
+
+  wrapper.style.transition = "transform 0.15s ease-out, margin-bottom 0.15s ease-out";
+  wrapper.style.transform = "translateY(-8px) scale(1.2)";
+  wrapper.style.marginBottom = "6px";
+
+  setTimeout(() => {
+    wrapper.style.transform = "";
+    wrapper.style.marginBottom = "";
+  }, 180);
+}
+
+// ---------- CLOSE BUTTONS (for non‑traffic‑light windows) ----------
 function setupCloseButtons() {
   document.querySelectorAll(".btn-close[data-close]").forEach((btn) => {
     btn.addEventListener("click", () => {
-      closeWindowById(btn.getAttribute("data-close"));
+      closeWindow(document.getElementById(btn.getAttribute("data-close")));
     });
   });
 }
@@ -306,7 +356,7 @@ function createCustomApp(name, url, idFromStorage) {
   const dockBtn = document.createElement("button");
   dockBtn.className = "dock-icon";
   dockBtn.dataset.appId = id;
-  dockBtn.innerHTML = `<div class="icon-circle icon-webapp"></div>`;
+  dockBtn.innerHTML = `<div class="dock-icon-wrapper"><div class="icon-circle icon-webapp"></div></div>`;
   dock.appendChild(dockBtn);
 
   function openCustom() {
@@ -328,7 +378,20 @@ function openWebAppWindow(name, url) {
   win.querySelector(".webapp-title").textContent = name;
   win.querySelector("iframe").src = url;
 
-  win.querySelector(".btn-close").addEventListener("click", () => win.remove());
+  const controls = win.querySelector(".window-controls");
+  controls.querySelectorAll(".dot").forEach((dot) => {
+    const role = dot.getAttribute("data-role");
+    dot.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (role === "close") {
+        win.remove();
+      } else if (role === "minimize") {
+        win.classList.add("hidden");
+      } else if (role === "fullscreen") {
+        toggleFullscreenWindow(win);
+      }
+    });
+  });
 
   document.querySelector(".os-shell").appendChild(win);
   makeWindowDraggable(win);
@@ -427,11 +490,89 @@ function clearNotificationBadge() {
   badge.classList.add("hidden");
 }
 
+// ---------- CHATCORD (LOCAL, SAFE, DISCORD‑STYLE) ----------
+const chatcordState = {
+  room: "general",
+  messages: {
+    general: [],
+    dev: [],
+    random: [],
+  },
+};
+
+function getChatUserName() {
+  const profile = getActiveProfile();
+  return profile?.name || "Guest";
+}
+
+function renderChatcordMessages() {
+  const container = document.getElementById("chatcord-messages");
+  const room = chatcordState.room;
+  const msgs = chatcordState.messages[room] || [];
+  container.innerHTML = "";
+  msgs.forEach((m) => {
+    const div = document.createElement("div");
+    div.className = "chatcord-message";
+    div.innerHTML = `
+      <div class="chatcord-message-user">${m.user}</div>
+      <div>${m.text}</div>
+      <div class="chatcord-message-meta">${m.time}</div>
+    `;
+    container.appendChild(div);
+  });
+  container.scrollTop = container.scrollHeight;
+}
+
+function setupChatcord() {
+  const roomList = document.getElementById("chatcord-rooms");
+  const roomLabel = document.getElementById("chatcord-room-label");
+  const userLabel = document.getElementById("chatcord-user-label");
+  const form = document.getElementById("chatcord-form");
+  const input = document.getElementById("chatcord-input");
+
+  userLabel.textContent = getChatUserName();
+
+  roomList.querySelectorAll("li").forEach((li) => {
+    li.addEventListener("click", () => {
+      roomList.querySelectorAll("li").forEach((x) => x.classList.remove("active"));
+      li.classList.add("active");
+      const room = li.getAttribute("data-room");
+      chatcordState.room = room;
+      roomLabel.textContent = "# " + room;
+      input.placeholder = "Message #" + room;
+      renderChatcordMessages();
+    });
+  });
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const text = input.value.trim();
+    if (!text) return;
+    const room = chatcordState.room;
+    const user = getChatUserName();
+    const time = new Date().toLocaleTimeString();
+    chatcordState.messages[room].push({ user, text, time });
+    renderChatcordMessages();
+    input.value = "";
+  });
+}
+
 // ---------- WINDOW FOCUS ----------
 function setupWindowFocus() {
   document.querySelectorAll(".window").forEach((win) => {
     win.addEventListener("mousedown", () => bringToFront(win));
   });
+}
+
+// ---------- CLOCK ----------
+function setupClock() {
+  const el = document.getElementById("topbar-clock");
+  function tick() {
+    const now = new Date();
+    el.textContent = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  }
+  tick();
+  setInterval(tick, 30000);
 }
 
 // ---------- INIT ----------
@@ -445,5 +586,8 @@ window.addEventListener("DOMContentLoaded", () => {
   setupWebAppCreator();
   setupWindowFocus();
   setupWindowDrag();
+  setupTrafficLights();
+  setupChatcord();
   renderNotifications();
+  setupClock();
 });
