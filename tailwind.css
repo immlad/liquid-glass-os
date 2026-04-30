@@ -88,6 +88,141 @@ body {
   min-height: 100vh;
 }
 
+/* Boot screen */
+.boot-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at top, #020617 0, #000000 60%);
+  z-index: 1000;
+  animation: bootFadeIn 0.6s ease-out;
+}
+.boot-inner {
+  text-align: center;
+  color: #e5e7eb;
+}
+.boot-logo {
+  width: 80px;
+  height: 80px;
+  border-radius: 24px;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #38bdf8, #6366f1);
+  font-weight: 700;
+  font-size: 28px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.9);
+}
+.boot-title {
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+.boot-subtitle {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-bottom: 16px;
+}
+.boot-progress {
+  width: 220px;
+  height: 6px;
+  border-radius: 999px;
+  margin: 0 auto;
+  background: rgba(15, 23, 42, 0.9);
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+}
+.boot-bar {
+  width: 40%;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #38bdf8, #22c55e);
+  animation: bootBar 1.4s infinite ease-in-out;
+}
+
+@keyframes bootBar {
+  0% {
+    transform: translateX(-60%);
+  }
+  50% {
+    transform: translateX(40%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+@keyframes bootFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(1.02);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Login screen */
+.login-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at top, rgba(15, 23, 42, 0.95), #020617 70%);
+  z-index: 900;
+}
+.login-card {
+  width: 280px;
+  padding: 24px 20px 20px;
+  border-radius: 24px;
+  background: linear-gradient(
+      135deg,
+      rgba(15, 23, 42, 0.95),
+      rgba(15, 23, 42, 0.85)
+    );
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.9);
+  text-align: center;
+}
+.login-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 24px;
+  margin: 0 auto 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #38bdf8, #6366f1);
+  font-weight: 700;
+  font-size: 22px;
+}
+.login-title {
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+.login-subtitle {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-bottom: 16px;
+}
+.login-card input {
+  width: 100%;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  padding: 6px 12px;
+  font-size: 13px;
+  background: rgba(15, 23, 42, 0.9);
+  color: var(--text);
+  margin-bottom: 12px;
+}
+.login-btn {
+  width: 100%;
+}
+
 /* OS shell */
 .os-shell {
   position: relative;
@@ -106,16 +241,25 @@ body {
   backdrop-filter: blur(28px) saturate(160%);
   -webkit-backdrop-filter: blur(28px) saturate(160%);
   overflow: hidden;
+  animation: osFadeIn 0.4s ease-out;
 }
 
-/* Desktop */
+@keyframes osFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Desktop + wallpapers */
 .desktop {
   position: absolute;
   inset: 16px 16px 80px 16px;
   border-radius: 24px;
-  background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.08), transparent 55%),
-    radial-gradient(circle at bottom right, rgba(129, 140, 248, 0.12), transparent 55%),
-    linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.95));
   border: 1px solid rgba(148, 163, 184, 0.35);
   backdrop-filter: blur(40px) saturate(180%);
   -webkit-backdrop-filter: blur(40px) saturate(180%);
@@ -124,6 +268,27 @@ body {
   grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
   grid-auto-rows: 90px;
   gap: 18px;
+}
+
+.desktop.wallpaper-1 {
+  background:
+    radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 55%),
+    radial-gradient(circle at bottom right, rgba(129, 140, 248, 0.22), transparent 55%),
+    linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.98));
+}
+
+.desktop.wallpaper-2 {
+  background:
+    radial-gradient(circle at top, rgba(251, 191, 36, 0.18), transparent 55%),
+    radial-gradient(circle at bottom, rgba(244, 63, 94, 0.22), transparent 55%),
+    linear-gradient(135deg, #020617, #111827);
+}
+
+.desktop.wallpaper-3 {
+  background:
+    radial-gradient(circle at top left, rgba(52, 211, 153, 0.18), transparent 55%),
+    radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.22), transparent 55%),
+    linear-gradient(135deg, #020617, #0f172a);
 }
 
 /* Desktop icons */
@@ -223,6 +388,10 @@ body {
   border-bottom: 1px solid rgba(148, 163, 184, 0.5);
   font-size: 14px;
   cursor: grab;
+}
+
+.window-header:active {
+  cursor: grabbing;
 }
 
 .window-body {
@@ -345,6 +514,38 @@ body {
   border-color: var(--accent);
   color: var(--accent);
   background: var(--accent-soft);
+}
+
+/* Wallpapers in settings */
+.wallpaper-grid {
+  display: flex;
+  gap: 10px;
+}
+.wallpaper-thumb {
+  width: 52px;
+  height: 32px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.7);
+}
+.wallpaper-thumb.wallpaper-1 {
+  background:
+    radial-gradient(circle at top left, rgba(56, 189, 248, 0.4), transparent 55%),
+    radial-gradient(circle at bottom right, rgba(129, 140, 248, 0.5), transparent 55%),
+    #020617;
+}
+.wallpaper-thumb.wallpaper-2 {
+  background:
+    radial-gradient(circle at top, rgba(251, 191, 36, 0.5), transparent 55%),
+    radial-gradient(circle at bottom, rgba(244, 63, 94, 0.5), transparent 55%),
+    #020617;
+}
+.wallpaper-thumb.wallpaper-3 {
+  background:
+    radial-gradient(circle at top left, rgba(52, 211, 153, 0.5), transparent 55%),
+    radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.5), transparent 55%),
+    #020617;
 }
 
 /* Web app creator */
