@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <title>Liquid Glass OS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="tailwind.css" />
+</head>
+
+<body class="bg-gradient flex items-center justify-center min-h-screen">
+  <div class="os-shell">
+
+    <!-- DESKTOP -->
+    <div class="desktop" id="desktop">
+      <div class="desktop-icon" data-app="browser">
+        <div class="icon-circle icon-browser"></div>
+        <span>Liquid Glass</span>
+      </div>
+
+      <div class="desktop-icon" data-app="movies">
+        <div class="icon-circle icon-movies"></div>
+        <span>Movies</span>
+      </div>
+
+      <div class="desktop-icon" data-app="settings">
+        <div class="icon-circle icon-settings"></div>
+        <span>Settings</span>
+      </div>
+
+      <div class="desktop-icon" data-app="webapp-creator">
+        <div class="icon-circle icon-webapp"></div>
+        <span>Web App Maker</span>
+      </div>
+
+      <div id="desktop-custom-apps"></div>
+    </div>
+
+    <!-- BROWSER WINDOW -->
+    <div class="window hidden" id="window-browser">
+      <div class="window-header">
+        <span>Liquid Glass Browser</span>
+        <button class="btn-close" data-close="window-browser">✕</button>
+      </div>
+
+      <div class="window-body">
+        <div class="browser-bar">
+          <input id="browser-url" type="text" placeholder="Enter URL and press Enter" />
+          <button id="browser-go">Go</button>
+        </div>
+
+        <div class="browser-status">
+          Backend WebSocket: <span id="browser-backend-status">connecting…</span>
+        </div>
+
+        <iframe id="browser-frame" class="window-iframe"
+          src="https://turbolearning.medscience.cl/test"></iframe>
+      </div>
+    </div>
+
+    <!-- MOVIES -->
+    <div class="window hidden" id="window-movies">
+      <div class="window-header">
+        <span>Movies</span>
+        <button class="btn-close" data-close="window-movies">✕</button>
+      </div>
+      <div class="window-body">
+        <iframe class="window-iframe"
+          src="https://turbolearning.medscience.cl/uv/service/hvtrs8%2F-wuw%2Cckngb%7B.qc-"></iframe>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="window hidden" id="window-settings">
+      <div class="window-header">
+        <span>Settings</span>
+        <button class="btn-close" data-close="window-settings">✕</button>
+      </div>
+
+      <div class="window-body settings-body">
+
+        <section class="settings-section">
+          <h2>Themes</h2>
+          <div class="theme-grid">
+            <button class="theme-pill" data-theme="amoled">AMOLED</button>
+            <button class="theme-pill" data-theme="night">Night</button>
+            <button class="theme-pill" data-theme="dark">Dark</button>
+            <button class="theme-pill" data-theme="light">Light</button>
+          </div>
+        </section>
+
+        <section class="settings-section">
+          <h2>Web App Creator</h2>
+          <form id="webapp-form" class="webapp-form">
+            <div class="form-row">
+              <label>Name</label>
+              <input type="text" id="webapp-name" required placeholder="My App" />
+            </div>
+
+            <div class="form-row">
+              <label>URL</label>
+              <input type="url" id="webapp-url" required placeholder="https://example.com" />
+            </div>
+
+            <button type="submit" class="btn-primary">Create App</button>
+          </form>
+        </section>
+
+      </div>
+    </div>
+
+    <!-- TEMPLATE FOR CUSTOM WEB APPS -->
+    <div class="window hidden" id="window-webapp-template">
+      <div class="window-header">
+        <span class="webapp-title">Web App</span>
+        <button class="btn-close">✕</button>
+      </div>
+      <div class="window-body">
+        <iframe class="window-iframe"></iframe>
+      </div>
+    </div>
+
+    <!-- DOCK -->
+    <div class="dock">
+      <div class="dock-inner">
+        <button class="dock-icon" data-app="browser">
+          <div class="icon-circle icon-browser"></div>
+        </button>
+
+        <button class="dock-icon" data-app="movies">
+          <div class="icon-circle icon-movies"></div>
+        </button>
+
+        <button class="dock-icon" data-app="settings">
+          <div class="icon-circle icon-settings"></div>
+        </button>
+
+        <button class="dock-icon" data-app="webapp-creator">
+          <div class="icon-circle icon-webapp"></div>
+        </button>
+
+        <div id="dock-custom-apps" class="dock-custom"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
