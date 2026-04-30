@@ -21,19 +21,37 @@
     </div>
   </div>
 
-  <!-- LOGIN SCREEN -->
+  <!-- LOGIN / PROFILE SCREEN -->
   <div id="login-screen" class="login-screen hidden">
     <div class="login-card">
       <div class="login-avatar">LG</div>
       <div class="login-title">Welcome</div>
-      <div class="login-subtitle">Enter your session</div>
-      <input id="login-name" type="text" placeholder="Your name (optional)" />
+      <div class="login-subtitle">Choose a profile or create one</div>
+
+      <div id="profile-list" class="profile-list"></div>
+
+      <div class="profile-divider">New profile</div>
+      <input id="login-name" type="text" placeholder="Profile name" />
       <button id="login-button" class="btn-primary login-btn">Enter OS</button>
     </div>
   </div>
 
   <!-- OS SHELL -->
   <div class="os-shell hidden" id="os-shell">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <span id="topbar-user" class="topbar-user">Guest</span>
+      </div>
+      <div class="topbar-right">
+        <button id="btn-notifications" class="topbar-icon" title="Notifications">
+          🔔 <span id="notif-badge" class="notif-badge hidden"></span>
+        </button>
+        <button id="btn-appstore" class="topbar-icon" title="App Store">🛒</button>
+        <button id="btn-switch-user" class="topbar-icon" title="Switch User">👤</button>
+      </div>
+    </div>
 
     <!-- DESKTOP -->
     <div class="desktop wallpaper-1" id="desktop">
@@ -45,6 +63,11 @@
       <div class="desktop-icon" data-app="movies">
         <div class="icon-circle icon-movies"></div>
         <span>Movies</span>
+      </div>
+
+      <div class="desktop-icon" data-app="chatcord">
+        <div class="icon-circle icon-chatcord"></div>
+        <span>Chatcord</span>
       </div>
 
       <div class="desktop-icon" data-app="settings">
@@ -91,6 +114,18 @@
       <div class="window-body">
         <iframe class="window-iframe"
           src="https://turbolearning.medscience.cl/uv/service/hvtrs8%2F-wuw%2Cckngb%7B.qc-"></iframe>
+      </div>
+    </div>
+
+    <!-- CHATCORD -->
+    <div class="window hidden" id="window-chatcord">
+      <div class="window-header" data-drag-handle>
+        <span>Chatcord</span>
+        <button class="btn-close" data-close="window-chatcord">✕</button>
+      </div>
+      <div class="window-body">
+        <iframe class="window-iframe"
+          src="https://github.com/bradtraversy/chatcord"></iframe>
       </div>
     </div>
 
@@ -142,6 +177,53 @@
       </div>
     </div>
 
+    <!-- APP STORE -->
+    <div class="window hidden" id="window-appstore">
+      <div class="window-header" data-drag-handle>
+        <span>App Store</span>
+        <button class="btn-close" data-close="window-appstore">✕</button>
+      </div>
+      <div class="window-body appstore-body">
+        <div class="appstore-grid">
+          <div class="appstore-card">
+            <div class="icon-circle icon-browser"></div>
+            <h3>Liquid Glass Browser</h3>
+            <p>Built-in glassy browser with WebSocket backend.</p>
+            <button class="btn-primary" data-open-app="browser">Open</button>
+          </div>
+          <div class="appstore-card">
+            <div class="icon-circle icon-movies"></div>
+            <h3>Movies</h3>
+            <p>Stream movies via your UV link.</p>
+            <button class="btn-primary" data-open-app="movies">Open</button>
+          </div>
+          <div class="appstore-card">
+            <div class="icon-circle icon-chatcord"></div>
+            <h3>Chatcord</h3>
+            <p>Discord-style chat app sourced from Chatcord repo.</p>
+            <button class="btn-primary" data-open-app="chatcord">Open</button>
+          </div>
+          <div class="appstore-card">
+            <div class="icon-circle icon-webapp"></div>
+            <h3>Web App Maker</h3>
+            <p>Create custom web apps and pin them to your OS.</p>
+            <button class="btn-primary" data-open-app="settings">Open</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTIFICATIONS -->
+    <div class="window hidden" id="window-notifications">
+      <div class="window-header" data-drag-handle>
+        <span>Notifications</span>
+        <button class="btn-close" data-close="window-notifications">✕</button>
+      </div>
+      <div class="window-body notifications-body">
+        <ul id="notifications-list" class="notifications-list"></ul>
+      </div>
+    </div>
+
     <!-- TEMPLATE FOR CUSTOM WEB APPS -->
     <div class="window hidden" id="window-webapp-template">
       <div class="window-header" data-drag-handle>
@@ -162,6 +244,10 @@
 
         <button class="dock-icon" data-app="movies">
           <div class="icon-circle icon-movies"></div>
+        </button>
+
+        <button class="dock-icon" data-app="chatcord">
+          <div class="icon-circle icon-chatcord"></div>
         </button>
 
         <button class="dock-icon" data-app="settings">
