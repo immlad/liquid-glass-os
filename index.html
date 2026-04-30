@@ -39,7 +39,7 @@
   <!-- OS SHELL (FULLSCREEN) -->
   <div class="os-shell" id="os-shell">
 
-    <!-- TOP BAR (macOS style) -->
+    <!-- TOP BAR -->
     <div class="topbar">
       <div class="topbar-left">
         <span class="topbar-apple"></span>
@@ -61,7 +61,6 @@
 
     <!-- DESKTOP -->
     <div class="desktop wallpaper-1" id="desktop">
-      <!-- Built‑in apps -->
       <div class="desktop-icon" data-app="browser">
         <div class="icon-circle icon-browser"></div>
         <span>Safari Glass</span>
@@ -141,7 +140,7 @@
       </div>
     </div>
 
-    <!-- CHATCORD (ACTUAL APP UI, LOCAL CHAT) -->
+    <!-- CHATCORD (GLOBAL SOCKET.IO CHAT) -->
     <div class="window hidden" id="window-chatcord">
       <div class="window-header" data-drag-handle>
         <div class="window-controls">
@@ -263,7 +262,7 @@
           <div class="appstore-card">
             <div class="icon-circle icon-chatcord"></div>
             <h3>Chatcord</h3>
-            <p>Discord‑style chat, local and instant.</p>
+            <p>Discord‑style global chat.</p>
             <button class="btn-primary" data-open-app="chatcord">Open</button>
           </div>
           <div class="appstore-card">
@@ -308,7 +307,7 @@
       </div>
     </div>
 
-    <!-- DOCK (macOS style) -->
+    <!-- DOCK -->
     <div class="dock">
       <div class="dock-inner">
         <button class="dock-icon" data-app="browser">
@@ -347,6 +346,8 @@
 
   </div>
 
+  <!-- Socket.io client (served by your Node server) -->
+  <script src="/socket.io/socket.io.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
