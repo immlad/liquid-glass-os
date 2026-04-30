@@ -235,7 +235,6 @@ function setupLaunchers() {
     });
   });
 
-  // App store buttons
   document.querySelectorAll("[data-open-app]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const app = btn.getAttribute("data-open-app");
@@ -270,7 +269,7 @@ function bounceDockIcon(appName) {
   }, 180);
 }
 
-// ---------- CLOSE BUTTONS (for non‑traffic‑light windows) ----------
+// ---------- CLOSE BUTTONS (legacy) ----------
 function setupCloseButtons() {
   document.querySelectorAll(".btn-close[data-close]").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -341,7 +340,7 @@ function setupWallpapers() {
   if (saved) applyWallpaper(saved);
 }
 
-// ---------- WEB APP CREATOR (PERSISTENT) ----------
+// ---------- WEB APP CREATOR ----------
 function createCustomApp(name, url, idFromStorage) {
   const id = idFromStorage || "webapp-" + Date.now();
 
@@ -490,36 +489,47 @@ function clearNotificationBadge() {
   badge.classList.add("hidden");
 }
 
-// ---------- CHATCORD (LOCAL, SAFE, DISCORD‑STYLE) ----------
-const chatcordState = {
-  room: "general",
-  messages: {
-    general: [],
-    dev: [],
-    random: [],
-  },
-};
+// ---------- CHATCORD (GLOBAL SOCKET.IO) ----------
+let chatSocket = null;
+let chatCurrentRoom = "general";
 
 function getChatUserName() {
   const profile = getActiveProfile();
   return profile?.name || "Guest";
 }
 
-function renderChatcordMessages() {
-  const container = document.getElementById("chatcord-messages");
-  const room = chatcordState.room;
-  const msgs = chatcordState.messages[room] || [];
-  container.innerHTML = "";
-  msgs.forEach((m) => {
-    const div = document.createElement("div");
-    div.className = "chatcord-message";
-    div.innerHTML = `
-      <div class="chatcord-message-user">${m.user}</div>
-      <div>${m.text}</div>
-      <div class="chatcord-message-meta">${m.time}</div>
-    `;
-    container.appendChild(div);
+function connectChatcordSocket() {
+  try {
+    chatSocket = io(); // connects to same origin where server.js runs
+  } catch (e) {
+    console.error("Socket.io not available", e);
+    return;
+  }
+
+  const user = getChatUserName();
+  chatSocket.emit("joinRoom", { username: user, room: chatCurrentRoom });
+
+  chatSocket.on("message", (msg) => {
+    appendChatMessage(msg);
   });
+
+  chatSocket.on("roomUsers", ({ room }) => {
+    const label = document.getElementById("chatcord-room-label");
+    if (label) label.textContent = "# " + room;
+  });
+}
+
+function appendChatMessage(msg) {
+  const container = document.getElementById("chatcord-messages");
+  if (!container) return;
+  const div = document.createElement("div");
+  div.className = "chatcord-message";
+  div.innerHTML = `
+    <div class="chatcord-message-user">${msg.username}</div>
+    <div>${msg.text}</div>
+    <div class="chatcord-message-meta">${msg.time}</div>
+  `;
+  container.appendChild(div);
   container.scrollTop = container.scrollHeight;
 }
 
@@ -532,27 +542,35 @@ function setupChatcord() {
 
   userLabel.textContent = getChatUserName();
 
+  // connect socket once
+  connectChatcordSocket();
+
   roomList.querySelectorAll("li").forEach((li) => {
     li.addEventListener("click", () => {
       roomList.querySelectorAll("li").forEach((x) => x.classList.remove("active"));
       li.classList.add("active");
       const room = li.getAttribute("data-room");
-      chatcordState.room = room;
+      chatCurrentRoom = room;
       roomLabel.textContent = "# " + room;
       input.placeholder = "Message #" + room;
-      renderChatcordMessages();
+
+      if (chatSocket) {
+        chatSocket.emit("joinRoom", {
+          username: getChatUserName(),
+          room,
+        });
+      }
+
+      const container = document.getElementById("chatcord-messages");
+      container.innerHTML = "";
     });
   });
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     const text = input.value.trim();
-    if (!text) return;
-    const room = chatcordState.room;
-    const user = getChatUserName();
-    const time = new Date().toLocaleTimeString();
-    chatcordState.messages[room].push({ user, text, time });
-    renderChatcordMessages();
+    if (!text || !chatSocket) return;
+    chatSocket.emit("chatMessage", text);
     input.value = "";
   });
 }
