@@ -249,7 +249,7 @@ body {
   width: 100%;
 }
 
-/* Top bar (macOS style) */
+/* Top bar */
 .topbar {
   position: absolute;
   top: 0;
@@ -505,25 +505,32 @@ body {
 .window-controls {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   margin-right: 8px;
 }
+
+/* ROUND, MORE CIRCULAR macOS DOTS */
 .dot {
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   border-radius: 999px;
-  border: 1px solid rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(0, 0, 0, 0.35);
   cursor: pointer;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12) inset;
 }
 .dot-red {
-  background: #ff5f57;
+  background: radial-gradient(circle at 30% 30%, #ffb3aa, #ff5f57);
 }
 .dot-yellow {
-  background: #febc2e;
+  background: radial-gradient(circle at 30% 30%, #ffe6a3, #febc2e);
 }
 .dot-green {
-  background: #28c840;
+  background: radial-gradient(circle at 30% 30%, #b4ffb8, #28c840);
 }
+.dot:hover {
+  filter: brightness(1.05);
+}
+
 .window-title {
   flex: 1;
   text-align: center;
@@ -874,7 +881,7 @@ body {
   color: #0b1120;
 }
 
-/* Dock (macOS style with magnification) */
+/* Dock */
 .dock {
   position: absolute;
   left: 0;
