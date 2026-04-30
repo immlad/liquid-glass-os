@@ -8,10 +8,35 @@
 </head>
 
 <body class="bg-gradient flex items-center justify-center min-h-screen">
-  <div class="os-shell">
+
+  <!-- BOOT SCREEN -->
+  <div id="boot-screen" class="boot-screen">
+    <div class="boot-inner">
+      <div class="boot-logo">LG</div>
+      <div class="boot-title">Liquid Glass OS</div>
+      <div class="boot-subtitle">booting environment…</div>
+      <div class="boot-progress">
+        <div class="boot-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOGIN SCREEN -->
+  <div id="login-screen" class="login-screen hidden">
+    <div class="login-card">
+      <div class="login-avatar">LG</div>
+      <div class="login-title">Welcome</div>
+      <div class="login-subtitle">Enter your session</div>
+      <input id="login-name" type="text" placeholder="Your name (optional)" />
+      <button id="login-button" class="btn-primary login-btn">Enter OS</button>
+    </div>
+  </div>
+
+  <!-- OS SHELL -->
+  <div class="os-shell hidden" id="os-shell">
 
     <!-- DESKTOP -->
-    <div class="desktop" id="desktop">
+    <div class="desktop wallpaper-1" id="desktop">
       <div class="desktop-icon" data-app="browser">
         <div class="icon-circle icon-browser"></div>
         <span>Liquid Glass</span>
@@ -37,7 +62,7 @@
 
     <!-- BROWSER WINDOW -->
     <div class="window hidden" id="window-browser">
-      <div class="window-header">
+      <div class="window-header" data-drag-handle>
         <span>Liquid Glass Browser</span>
         <button class="btn-close" data-close="window-browser">✕</button>
       </div>
@@ -59,7 +84,7 @@
 
     <!-- MOVIES -->
     <div class="window hidden" id="window-movies">
-      <div class="window-header">
+      <div class="window-header" data-drag-handle>
         <span>Movies</span>
         <button class="btn-close" data-close="window-movies">✕</button>
       </div>
@@ -71,7 +96,7 @@
 
     <!-- SETTINGS -->
     <div class="window hidden" id="window-settings">
-      <div class="window-header">
+      <div class="window-header" data-drag-handle>
         <span>Settings</span>
         <button class="btn-close" data-close="window-settings">✕</button>
       </div>
@@ -85,6 +110,15 @@
             <button class="theme-pill" data-theme="night">Night</button>
             <button class="theme-pill" data-theme="dark">Dark</button>
             <button class="theme-pill" data-theme="light">Light</button>
+          </div>
+        </section>
+
+        <section class="settings-section">
+          <h2>Wallpapers</h2>
+          <div class="wallpaper-grid">
+            <button class="wallpaper-thumb wallpaper-1" data-wallpaper="1"></button>
+            <button class="wallpaper-thumb wallpaper-2" data-wallpaper="2"></button>
+            <button class="wallpaper-thumb wallpaper-3" data-wallpaper="3"></button>
           </div>
         </section>
 
@@ -110,7 +144,7 @@
 
     <!-- TEMPLATE FOR CUSTOM WEB APPS -->
     <div class="window hidden" id="window-webapp-template">
-      <div class="window-header">
+      <div class="window-header" data-drag-handle>
         <span class="webapp-title">Web App</span>
         <button class="btn-close">✕</button>
       </div>
