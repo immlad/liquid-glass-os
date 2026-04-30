@@ -1,4 +1,32 @@
-// Window management
+// ---------- BOOT + LOGIN FLOW ----------
+function showLogin() {
+  const boot = document.getElementById("boot-screen");
+  const login = document.getElementById("login-screen");
+  boot.classList.add("hidden");
+  login.classList.remove("hidden");
+}
+
+function showOS() {
+  const login = document.getElementById("login-screen");
+  const os = document.getElementById("os-shell");
+  login.classList.add("hidden");
+  os.classList.remove("hidden");
+}
+
+function setupBootAndLogin() {
+  setTimeout(showLogin, 1800);
+
+  const loginBtn = document.getElementById("login-button");
+  loginBtn.addEventListener("click", () => {
+    const name = document.getElementById("login-name").value.trim();
+    if (name) {
+      localStorage.setItem("lgosUserName", name);
+    }
+    showOS();
+  });
+}
+
+// ---------- WINDOW MANAGEMENT ----------
 const windows = {
   browser: document.getElementById("window-browser"),
   movies: document.getElementById("window-movies"),
@@ -18,14 +46,60 @@ function closeWindowById(id) {
 }
 
 function bringToFront(win) {
-  const maxZ = Array.from(document.querySelectorAll(".window")).reduce(
+  const all = Array.from(document.querySelectorAll(".window"));
+  const maxZ = all.reduce(
     (max, w) => Math.max(max, parseInt(window.getComputedStyle(w).zIndex || "10", 10)),
     10
   );
   win.style.zIndex = maxZ + 1;
 }
 
-// Launchers
+// ---------- DRAGGABLE WINDOWS ----------
+function makeWindowDraggable(win) {
+  const header = win.querySelector("[data-drag-handle]");
+  if (!header) return;
+
+  let isDragging = false;
+  let startX = 0;
+  let startY = 0;
+  let startLeft = 0;
+  let startTop = 0;
+
+  header.addEventListener("mousedown", (e) => {
+    isDragging = true;
+    bringToFront(win);
+    const rect = win.getBoundingClientRect();
+    const shellRect = document.getElementById("os-shell").getBoundingClientRect();
+
+    startX = e.clientX;
+    startY = e.clientY;
+    startLeft = rect.left - shellRect.left;
+    startTop = rect.top - shellRect.top;
+
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+  });
+
+  function onMove(e) {
+    if (!isDragging) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    win.style.left = startLeft + dx + "px";
+    win.style.top = startTop + dy + "px";
+  }
+
+  function onUp() {
+    isDragging = false;
+    document.removeEventListener("mousemove", onMove);
+    document.removeEventListener("mouseup", onUp);
+  }
+}
+
+function setupWindowDrag() {
+  document.querySelectorAll(".window").forEach((win) => makeWindowDraggable(win));
+}
+
+// ---------- LAUNCHERS ----------
 function setupLaunchers() {
   document.querySelectorAll("[data-app]").forEach((el) => {
     el.addEventListener("click", () => {
@@ -40,7 +114,7 @@ function setupLaunchers() {
   });
 }
 
-// Close buttons
+// ---------- CLOSE BUTTONS ----------
 function setupCloseButtons() {
   document.querySelectorAll(".btn-close[data-close]").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -49,7 +123,7 @@ function setupCloseButtons() {
   });
 }
 
-// Browser
+// ---------- BROWSER ----------
 function setupBrowser() {
   const input = document.getElementById("browser-url");
   const goBtn = document.getElementById("browser-go");
@@ -64,7 +138,6 @@ function setupBrowser() {
   goBtn.addEventListener("click", navigate);
   input.addEventListener("keydown", (e) => e.key === "Enter" && navigate());
 
-  // WebSocket backend
   const statusEl = document.getElementById("browser-backend-status");
   try {
     const ws = new WebSocket("wss://anura.pro/");
@@ -76,7 +149,7 @@ function setupBrowser() {
   }
 }
 
-// Themes
+// ---------- THEMES ----------
 function setupThemes() {
   document.querySelectorAll(".theme-pill").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -90,11 +163,30 @@ function setupThemes() {
   if (saved) document.documentElement.setAttribute("data-theme", saved);
 }
 
-// Web App Creator
-function createCustomApp(name, url) {
-  const id = "webapp-" + Date.now();
+// ---------- WALLPAPERS ----------
+function applyWallpaper(id) {
+  const desktop = document.getElementById("desktop");
+  desktop.classList.remove("wallpaper-1", "wallpaper-2", "wallpaper-3");
+  desktop.classList.add("wallpaper-" + id);
+  localStorage.setItem("liquidGlassWallpaper", id);
+}
 
-  // Desktop icon
+function setupWallpapers() {
+  document.querySelectorAll(".wallpaper-thumb").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-wallpaper");
+      applyWallpaper(id);
+    });
+  });
+
+  const saved = localStorage.getItem("liquidGlassWallpaper");
+  if (saved) applyWallpaper(saved);
+}
+
+// ---------- WEB APP CREATOR (PERSISTENT) ----------
+function createCustomApp(name, url, idFromStorage) {
+  const id = idFromStorage || "webapp-" + Date.now();
+
   const desktop = document.getElementById("desktop-custom-apps");
   const icon = document.createElement("div");
   icon.className = "desktop-icon";
@@ -102,7 +194,6 @@ function createCustomApp(name, url) {
   icon.innerHTML = `<div class="icon-circle icon-webapp"></div><span>${name}</span>`;
   desktop.appendChild(icon);
 
-  // Dock icon
   const dock = document.getElementById("dock-custom-apps");
   const dockBtn = document.createElement("button");
   dockBtn.className = "dock-icon";
@@ -116,6 +207,8 @@ function createCustomApp(name, url) {
 
   icon.addEventListener("click", openCustom);
   dockBtn.addEventListener("click", openCustom);
+
+  return id;
 }
 
 function openWebAppWindow(name, url) {
@@ -130,34 +223,65 @@ function openWebAppWindow(name, url) {
   win.querySelector(".btn-close").addEventListener("click", () => win.remove());
 
   document.querySelector(".os-shell").appendChild(win);
+  makeWindowDraggable(win);
   bringToFront(win);
+}
+
+function saveCustomApps(apps) {
+  localStorage.setItem("liquidGlassApps", JSON.stringify(apps));
+}
+
+function loadCustomApps() {
+  try {
+    const raw = localStorage.getItem("liquidGlassApps");
+    if (!raw) return [];
+    const apps = JSON.parse(raw);
+    apps.forEach((app) => {
+      createCustomApp(app.name, app.url, app.id);
+    });
+    return apps;
+  } catch {
+    return [];
+  }
 }
 
 function setupWebAppCreator() {
   const form = document.getElementById("webapp-form");
+  const nameInput = document.getElementById("webapp-name");
+  const urlInput = document.getElementById("webapp-url");
+
+  let apps = loadCustomApps();
+
   form.addEventListener("submit", (e) => {
     e.preventDefault();
-    createCustomApp(
-      document.getElementById("webapp-name").value.trim(),
-      document.getElementById("webapp-url").value.trim()
-    );
+    const name = nameInput.value.trim();
+    const url = urlInput.value.trim();
+    if (!name || !url) return;
+
+    const id = createCustomApp(name, url);
+    apps.push({ id, name, url });
+    saveCustomApps(apps);
+
     form.reset();
   });
 }
 
-// Window focus
+// ---------- WINDOW FOCUS ----------
 function setupWindowFocus() {
   document.querySelectorAll(".window").forEach((win) => {
     win.addEventListener("mousedown", () => bringToFront(win));
   });
 }
 
-// Init
+// ---------- INIT ----------
 window.addEventListener("DOMContentLoaded", () => {
+  setupBootAndLogin();
   setupLaunchers();
   setupCloseButtons();
   setupBrowser();
   setupThemes();
+  setupWallpapers();
   setupWebAppCreator();
   setupWindowFocus();
+  setupWindowDrag();
 });
