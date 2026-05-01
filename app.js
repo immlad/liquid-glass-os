@@ -1,57 +1,165 @@
-// Minimal working OS logic
+// Simple state
+let currentUser = "Guest";
 
-function openWindow(id) {
-  document.getElementById(id).classList.remove("hidden");
+// Boot + login
+function showLogin() {
+  document.getElementById("boot-screen").classList.add("hidden");
+  document.getElementById("login-screen").classList.remove("hidden");
 }
 
-function closeWindow(win) {
-  win.classList.add("hidden");
+function showOS() {
+  document.getElementById("login-screen").classList.add("hidden");
+  document.getElementById("os-shell").classList.remove("hidden");
+  document.getElementById("topbar-user").textContent = currentUser;
+  document.getElementById("settings-user").textContent = currentUser;
+}
+
+// Windows
+const windows = {
+  browser: "window-browser",
+  chat: "window-chat",
+  settings: "window-settings",
+};
+
+function openWindow(name) {
+  const id = windows[name];
+  if (!id) return;
+  const win = document.getElementById(id);
+  win.classList.remove("hidden");
+  bringToFront(win);
+}
+
+function bringToFront(win) {
+  const all = Array.from(document.querySelectorAll(".window"));
+  const maxZ = all.reduce((m, w) => Math.max(m, parseInt(w.style.zIndex || "20", 10)), 20);
+  win.style.zIndex = maxZ + 1;
 }
 
 function setupTrafficLights() {
   document.querySelectorAll(".window").forEach(win => {
     win.querySelectorAll(".dot").forEach(dot => {
-      dot.onclick = e => {
+      dot.addEventListener("click", e => {
+        e.stopPropagation();
         const role = dot.dataset.role;
-        if (role === "close") closeWindow(win);
+        if (role === "close") win.classList.add("hidden");
         if (role === "minimize") win.classList.add("hidden");
         if (role === "fullscreen") win.classList.toggle("window-fullscreen");
-      };
+      });
     });
   });
 }
 
-function setupLaunchers() {
-  document.querySelectorAll("[data-app]").forEach(icon => {
-    icon.onclick = () => openWindow("window-" + icon.dataset.app);
+function setupDrag() {
+  document.querySelectorAll(".window").forEach(win => {
+    const header = win.querySelector("[data-drag-handle]");
+    if (!header) return;
+
+    let dragging = false;
+    let startX = 0, startY = 0, startLeft = 0, startTop = 0;
+
+    header.addEventListener("mousedown", e => {
+      if (e.target.closest(".dot")) return;
+      dragging = true;
+      bringToFront(win);
+      const rect = win.getBoundingClientRect();
+      startX = e.clientX;
+      startY = e.clientY;
+      startLeft = rect.left;
+      startTop = rect.top;
+      document.addEventListener("mousemove", onMove);
+      document.addEventListener("mouseup", onUp);
+    });
+
+    function onMove(e) {
+      if (!dragging) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      win.style.left = startLeft + dx + "px";
+      win.style.top = startTop + dy + "px";
+    }
+
+    function onUp() {
+      dragging = false;
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+    }
   });
 }
 
-function setupChat() {
-  document.getElementById("chatcord-frame").src =
-    "https://cdn.jsdelivr.net/gh/immlad/liquid-aura/liquid-aura/dist/index.html";
+// Launchers + dock
+function setupLaunchers() {
+  document.querySelectorAll("[data-app]").forEach(el => {
+    el.addEventListener("click", () => {
+      const app = el.getAttribute("data-app");
+      openWindow(app);
+    });
+  });
 }
 
+// Browser
+function setupBrowser() {
+  const input = document.getElementById("browser-url");
+  const go = document.getElementById("browser-go");
+  const frame = document.getElementById("browser-frame");
+
+  function nav() {
+    const url = (input.value || "").trim();
+    if (!url) return;
+    frame.src = url.startsWith("http") ? url : "https://" + url;
+  }
+
+  go.addEventListener("click", nav);
+  input.addEventListener("keydown", e => e.key === "Enter" && nav());
+}
+
+// Chat iframe
+function setupChat() {
+  const frame = document.getElementById("chat-frame");
+  frame.src = "https://cdn.jsdelivr.net/gh/immlad/liquid-aura/liquid-aura/dist/index.html";
+}
+
+// Clock
 function setupClock() {
   const el = document.getElementById("topbar-clock");
-  setInterval(() => {
+  function tick() {
     el.textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  }, 1000);
+  }
+  tick();
+  setInterval(tick, 30000);
 }
 
-window.onload = () => {
+// Theme buttons (simple demo)
+function setupTheme() {
+  document.querySelectorAll("[data-theme]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const theme = btn.getAttribute("data-theme");
+      if (theme === "white") {
+        document.body.style.background =
+          "radial-gradient(circle at top, #ffffff 0, #e5e7eb 40%, #e5e7eb 100%)";
+      } else {
+        document.body.style.background =
+          "radial-gradient(circle at top, #ffffff 0, #e0f2fe 30%, #e0e7ff 60%, #f5d0fe 100%)";
+      }
+    });
+  });
+}
+
+// Init
+window.addEventListener("DOMContentLoaded", () => {
+  // Boot → login
+  setTimeout(showLogin, 1200);
+
+  document.getElementById("login-button").addEventListener("click", () => {
+    const name = (document.getElementById("login-name").value || "").trim();
+    currentUser = name || "Guest";
+    showOS();
+  });
+
   setupTrafficLights();
+  setupDrag();
   setupLaunchers();
+  setupBrowser();
   setupChat();
   setupClock();
-
-  setTimeout(() => {
-    document.getElementById("boot-screen").classList.add("hidden");
-    document.getElementById("login-screen").classList.remove("hidden");
-  }, 1200);
-
-  document.getElementById("login-button").onclick = () => {
-    document.getElementById("login-screen").classList.add("hidden");
-    document.getElementById("os-shell").classList.remove("hidden");
-  };
-};
+  setupTheme();
+});
