@@ -1,16 +1,12 @@
-/* ----------------------------------------------------
-   LIQUID GLASS OS — CUSTOM TAILWIND EXTENSIONS
-   Montserrat + macOS UI + Liquid Glass + Animations
-   Works with Tailwind CDN
----------------------------------------------------- */
-
+/* tailwind.css */
 /* Import Montserrat */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap');
 
-/* Global font + center text by default */
+/* Global font + center text */
 * {
   font-family: 'Montserrat', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   text-align: center;
+  transition: all 0.2s ease;
 }
 
 /* Liquid Glass Variables */
@@ -35,7 +31,7 @@
   color: var(--glass-text);
 }
 
-/* Stronger glass (topbar, dock, headers) */
+/* Stronger glass (topbar, dock, headers, widgets) */
 .glass-strong {
   background: var(--glass-bg-strong);
   backdrop-filter: blur(calc(var(--glass-blur) * 0.8)) saturate(180%);
@@ -238,7 +234,75 @@
   background: #ff3b30;
 }
 
-/* Smooth transitions */
-* {
-  transition: all 0.2s ease;
+/* Widgets */
+.widget {
+  position: fixed;
+  min-width: 150px;
+  padding: 10px 14px;
+  border-radius: 18px;
+  z-index: 30;
+  cursor: grab;
 }
+
+.widget-dragging {
+  cursor: grabbing;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.55);
+}
+
+.widget-title {
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  opacity: 0.8;
+}
+
+.widget-main {
+  margin-bottom: 2px;
+}
+
+.widget-sub {
+  line-height: 1.2;
+}
+
+.widget-button {
+  margin-top: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.85);
+  font-size: 11px;
+}
+
+/* Default widget positions (used before drag + for snap targets) */
+.widget-top-left {
+  top: 64px;
+  left: 16px;
+}
+
+.widget-top-right {
+  top: 64px;
+  right: 16px;
+}
+
+.widget-bottom-left {
+  bottom: 90px;
+  left: 16px;
+}
+
+.widget-bottom-right {
+  bottom: 90px;
+  right: 16px;
+}
+
+.widget-bottom-center {
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Ensure widgets float above desktop but below windows when needed */
+.widget {
+  pointer-events: auto;
+}
+
+/* Smooth transitions already applied via * selector */
