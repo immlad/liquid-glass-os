@@ -60,6 +60,10 @@
           <div class="icon-glass">▶</div>
           <span class="text-[11px] mt-1">Movies</span>
         </div>
+        <div class="flex flex-col items-center gap-1 cursor-pointer" data-app="music">
+          <div class="icon-glass">🎵</div>
+          <span class="text-[11px] mt-1">Music</span>
+        </div>
         <div class="flex flex-col items-center gap-1 cursor-pointer" data-app="chat">
           <div class="icon-glass">✉</div>
           <span class="text-[11px] mt-1">Chat</span>
@@ -83,10 +87,11 @@
       </div>
     </div>
 
-    <!-- DOCK (icons only, no text) -->
+    <!-- DOCK -->
     <div class="dock glass-strong flex items-center gap-4 rounded-3xl">
       <button class="dock-icon" data-app="browser">⌘</button>
       <button class="dock-icon" data-app="movies">▶</button>
+      <button class="dock-icon" data-app="music">🎵</button>
       <button class="dock-icon" data-app="chat">✉</button>
       <button class="dock-icon" data-app="settings">⚙</button>
       <button class="dock-icon" data-app="notifications">🔔</button>
@@ -130,6 +135,21 @@
       </div>
     </div>
 
+    <!-- Music -->
+    <div id="window-music" class="window glass hidden">
+      <div class="window-header" data-drag-handle>
+        <div class="window-controls">
+          <span class="dot" data-role="close"></span>
+          <span class="dot" data-role="minimize"></span>
+          <span class="dot" data-role="fullscreen"></span>
+        </div>
+        <div class="text-xs font-medium flex-1 text-center">Music</div>
+      </div>
+      <div class="window-body text-center rounded-b-2xl">
+        <iframe id="music-frame" class="window-iframe rounded-b-2xl"></iframe>
+      </div>
+    </div>
+
     <!-- Chat -->
     <div id="window-chat" class="window glass hidden">
       <div class="window-header" data-drag-handle>
@@ -140,8 +160,14 @@
         </div>
         <div class="text-xs font-medium flex-1 text-center">Liquid Glass Chat</div>
       </div>
-      <div class="window-body text-center rounded-b-2xl">
-        <iframe id="chat-frame" class="window-iframe rounded-b-2xl"></iframe>
+      <div class="window-body p-3 text-xs flex flex-col rounded-b-2xl">
+        <div id="chat-messages" class="flex-1 overflow-auto space-y-2 mb-2 px-2">
+          <!-- messages injected here -->
+        </div>
+        <div class="flex gap-2">
+          <input id="chat-input" class="flex-1 p-2 rounded-full border border-white/60 bg-white/80 text-[11px] text-center" placeholder="Type a message..." />
+          <button id="chat-send" class="px-3 py-1 rounded-full bg-white/90 border text-[11px]">Send</button>
+        </div>
       </div>
     </div>
 
