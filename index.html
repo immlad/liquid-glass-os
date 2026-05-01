@@ -2,149 +2,81 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Aurora Glass Connect</title>
+  <title>Liquid Glass OS</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Aurora glass theme -->
-  <style>
-    :root {
-      --glass-bg: rgba(255, 255, 255, 0.22);
-      --glass-border: rgba(255, 255, 255, 0.55);
-      --glass-shadow: rgba(15, 23, 42, 0.35);
-      --glass-blur: 22px;
-      --glass-radius: 18px;
-      --glass-text: #0f172a;
-    }
-
-    body {
-      background: radial-gradient(circle at top, #ffffff 0, #e0f2fe 30%, #e0e7ff 60%, #f5d0fe 100%);
-      overflow: hidden;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
-    }
-
-    .glass {
-      background: var(--glass-bg);
-      backdrop-filter: blur(var(--glass-blur)) saturate(180%);
-      -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
-      border: 1px solid var(--glass-border);
-      border-radius: var(--glass-radius);
-      box-shadow: 0 10px 32px var(--glass-shadow);
-      color: var(--glass-text);
-    }
-
-    .os-shell { position: fixed; inset: 0; overflow: hidden; }
-    .desktop { position: absolute; inset: 0; }
-    .desktop-icons {
-      position: absolute;
-      top: 80px;
-      left: 40px;
-      display: grid;
-      grid-template-columns: repeat(4, 90px);
-      gap: 22px;
-    }
-    .window {
-      position: absolute;
-      width: 640px;
-      height: 440px;
-      overflow: hidden;
-      z-index: 20;
-    }
-    .window-header {
-      height: 34px;
-      display: flex;
-      align-items: center;
-      padding: 0 10px;
-      background: rgba(255, 255, 255, 0.4);
-      backdrop-filter: blur(18px);
-      border-bottom: 1px solid var(--glass-border);
-    }
-    .window-iframe { width: 100%; height: 100%; border: none; }
-    .dock {
-      position: fixed;
-      bottom: 18px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 10px 18px;
-      z-index: 60;
-    }
-    .topbar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 38px;
-      z-index: 50;
-    }
-    .window-fullscreen {
-      top: 50px !important;
-      left: 10px !important;
-      width: calc(100% - 20px) !important;
-      height: calc(100% - 70px) !important;
-    }
-  </style>
+  <!-- Custom Liquid Glass + macOS styles -->
+  <link rel="stylesheet" href="tailwind.css" />
 </head>
-<body>
+<body class="overflow-hidden bg-[radial-gradient(circle_at_top,_#ffffff_0,_#e0f2fe_30%,_#e0e7ff_60%,_#f5d0fe_100%)]">
 
-  <!-- BOOT -->
-  <div id="boot-screen" class="fixed inset-0 flex flex-col items-center justify-center bg-white/80 z-50">
+  <!-- BOOT SCREEN -->
+  <div id="boot-screen" class="boot-screen">
     <div class="text-4xl mb-2">⌘</div>
-    <div class="text-slate-600">Aurora Glass Connect</div>
+    <div class="text-slate-600 text-sm tracking-wide">Liquid Glass OS</div>
   </div>
 
-  <!-- LOGIN -->
+  <!-- LOGIN SCREEN -->
   <div id="login-screen" class="hidden fixed inset-0 flex items-center justify-center">
-    <div class="glass p-6 w-72">
-      <div class="text-xl font-semibold mb-3">Welcome</div>
-      <input id="login-name" class="w-full mb-3 p-2 rounded border border-white/60 bg-white/60" placeholder="Enter your name">
-      <button id="login-button" class="w-full p-2 rounded bg-white/80 border border-white/70 hover:bg-white">
-        Enter Aurora
+    <div class="glass login-panel">
+      <div class="text-lg font-semibold mb-3">Welcome</div>
+      <input id="login-name" class="w-full mb-3 p-2 rounded border border-white/60 bg-white/70 text-sm" placeholder="Enter your name" />
+      <button id="login-button" class="w-full p-2 rounded bg-white/85 border border-white/70 text-sm hover:bg-white">
+        Enter Liquid Glass
       </button>
     </div>
   </div>
 
-  <!-- OS -->
+  <!-- OS SHELL -->
   <div id="os-shell" class="os-shell hidden">
 
     <!-- TOPBAR -->
-    <div class="topbar glass flex items-center justify-between px-4">
+    <div class="topbar glass-strong flex items-center justify-between px-4">
       <div class="flex items-center gap-2">
         <span class="text-lg">⌘</span>
-        <span class="font-semibold">Aurora Glass Connect</span>
+        <span class="font-semibold text-sm">Liquid Glass OS</span>
       </div>
-      <div class="flex items-center gap-3">
-        <span id="topbar-user">Guest</span>
-        <span id="topbar-clock" class="text-sm"></span>
+      <div class="flex items-center gap-4 text-xs">
+        <span id="topbar-user" class="font-medium">Guest</span>
+        <span id="topbar-clock" class="opacity-80"></span>
+        <button id="btn-notifications" class="relative">
+          ⦿
+          <span id="notif-badge" class="notif-badge hidden"></span>
+        </button>
       </div>
     </div>
 
     <!-- DESKTOP -->
     <div id="desktop" class="desktop">
       <div class="desktop-icons">
-        <div class="text-center cursor-pointer" data-app="browser">
-          <div class="glass w-14 h-14 flex items-center justify-center text-2xl rounded-xl">⌘</div>
-          <span class="text-xs mt-1">Browser</span>
+        <div class="flex flex-col items-center gap-1 cursor-pointer" data-app="browser">
+          <div class="icon-glass">⌘</div>
+          <span class="text-[11px] mt-1">Browser</span>
         </div>
-        <div class="text-center cursor-pointer" data-app="chat">
-          <div class="glass w-14 h-14 flex items-center justify-center text-2xl rounded-xl">✉</div>
-          <span class="text-xs mt-1">Chat</span>
+        <div class="flex flex-col items-center gap-1 cursor-pointer" data-app="chat">
+          <div class="icon-glass">✉</div>
+          <span class="text-[11px] mt-1">Chat</span>
         </div>
-        <div class="text-center cursor-pointer" data-app="settings">
-          <div class="glass w-14 h-14 flex items-center justify-center text-2xl rounded-xl">⚙</div>
-          <span class="text-xs mt-1">Settings</span>
+        <div class="flex flex-col items-center gap-1 cursor-pointer" data-app="settings">
+          <div class="icon-glass">⚙</div>
+          <span class="text-[11px] mt-1">Settings</span>
+        </div>
+        <div class="flex flex-col items-center gap-1 cursor-pointer" data-app="notifications">
+          <div class="icon-glass">🔔</div>
+          <span class="text-[11px] mt-1">Notifications</span>
         </div>
       </div>
     </div>
 
     <!-- DOCK -->
-    <div class="dock glass rounded-2xl">
-      <div class="flex items-center gap-4">
-        <button class="dock-icon" data-app="browser"><div class="text-2xl">⌘</div></button>
-        <button class="dock-icon" data-app="chat"><div class="text-2xl">✉</div></button>
-        <button class="dock-icon" data-app="settings"><div class="text-2xl">⚙</div></button>
-      </div>
+    <div class="dock glass-strong flex items-center gap-4">
+      <button class="dock-icon" data-app="browser">⌘</button>
+      <button class="dock-icon" data-app="chat">✉</button>
+      <button class="dock-icon" data-app="settings">⚙</button>
+      <button class="dock-icon" data-app="notifications">🔔</button>
     </div>
 
     <!-- WINDOWS -->
@@ -152,17 +84,17 @@
     <!-- Browser -->
     <div id="window-browser" class="window glass hidden" style="left:120px;top:120px;">
       <div class="window-header" data-drag-handle>
-        <div class="flex gap-2 mr-2">
-          <span class="dot w-3 h-3 rounded-full bg-red-500" data-role="close"></span>
-          <span class="dot w-3 h-3 rounded-full bg-yellow-400" data-role="minimize"></span>
-          <span class="dot w-3 h-3 rounded-full bg-green-500" data-role="fullscreen"></span>
+        <div class="window-controls">
+          <span class="dot" data-role="close"></span>
+          <span class="dot" data-role="minimize"></span>
+          <span class="dot" data-role="fullscreen"></span>
         </div>
-        <div class="text-sm">Aurora Browser</div>
+        <div class="text-xs font-medium">Liquid Browser</div>
       </div>
-      <div class="h-[calc(100%-34px)] flex flex-col">
+      <div class="window-body flex flex-col">
         <div class="p-2 flex gap-2 border-b border-white/40">
-          <input id="browser-url" class="flex-1 p-1 rounded border border-white/60 bg-white/70 text-sm" placeholder="Type a URL">
-          <button id="browser-go" class="px-3 py-1 rounded border bg-white/80 text-sm">Go</button>
+          <input id="browser-url" class="flex-1 p-1 rounded border border-white/60 bg-white/75 text-xs" placeholder="Type a URL" />
+          <button id="browser-go" class="px-3 py-1 rounded border bg-white/85 text-xs">Go</button>
         </div>
         <iframe id="browser-frame" class="window-iframe"></iframe>
       </div>
@@ -171,38 +103,55 @@
     <!-- Chat -->
     <div id="window-chat" class="window glass hidden" style="left:220px;top:160px;">
       <div class="window-header" data-drag-handle>
-        <div class="flex gap-2 mr-2">
-          <span class="dot w-3 h-3 rounded-full bg-red-500" data-role="close"></span>
-          <span class="dot w-3 h-3 rounded-full bg-yellow-400" data-role="minimize"></span>
-          <span class="dot w-3 h-3 rounded-full bg-green-500" data-role="fullscreen"></span>
+        <div class="window-controls">
+          <span class="dot" data-role="close"></span>
+          <span class="dot" data-role="minimize"></span>
+          <span class="dot" data-role="fullscreen"></span>
         </div>
-        <div class="text-sm">Aurora Chat</div>
+        <div class="text-xs font-medium">Liquid Glass Chat</div>
       </div>
-      <iframe id="chat-frame" class="window-iframe"></iframe>
+      <div class="window-body">
+        <iframe id="chat-frame" class="window-iframe"></iframe>
+      </div>
     </div>
 
     <!-- Settings -->
     <div id="window-settings" class="window glass hidden" style="left:180px;top:200px;">
       <div class="window-header" data-drag-handle>
-        <div class="flex gap-2 mr-2">
-          <span class="dot w-3 h-3 rounded-full bg-red-500" data-role="close"></span>
-          <span class="dot w-3 h-3 rounded-full bg-yellow-400" data-role="minimize"></span>
-          <span class="dot w-3 h-3 rounded-full bg-green-500" data-role="fullscreen"></span>
+        <div class="window-controls">
+          <span class="dot" data-role="close"></span>
+          <span class="dot" data-role="minimize"></span>
+          <span class="dot" data-role="fullscreen"></span>
         </div>
-        <div class="text-sm">Settings</div>
+        <div class="text-xs font-medium">Settings</div>
       </div>
-      <div class="h-[calc(100%-34px)] p-4 text-sm space-y-4 overflow-auto">
+      <div class="window-body p-4 text-xs space-y-4 overflow-auto">
         <div>
           <div class="font-semibold mb-1">Profile</div>
-          <div>Signed in as <span id="settings-user">Guest</span></div>
+          <div>Signed in as <span id="settings-user" class="font-medium">Guest</span></div>
         </div>
         <div>
           <div class="font-semibold mb-1">Theme</div>
           <div class="flex gap-2">
-            <button class="px-3 py-1 rounded bg-white/80 border text-xs" data-theme="aurora">Aurora</button>
-            <button class="px-3 py-1 rounded bg-white/40 border text-xs" data-theme="white">White</button>
+            <button class="px-3 py-1 rounded bg-white/85 border text-[11px]" data-theme="aurora">Aurora</button>
+            <button class="px-3 py-1 rounded bg-white/50 border text-[11px]" data-theme="white">White</button>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Notifications -->
+    <div id="window-notifications" class="window glass hidden" style="left:260px;top:140px;">
+      <div class="window-header" data-drag-handle>
+        <div class="window-controls">
+          <span class="dot" data-role="close"></span>
+          <span class="dot" data-role="minimize"></span>
+          <span class="dot" data-role="fullscreen"></span>
+        </div>
+        <div class="text-xs font-medium">Notifications</div>
+      </div>
+      <div class="window-body p-3 text-xs overflow-auto">
+        <ul id="notifications-list" class="space-y-2"></ul>
       </div>
     </div>
 
