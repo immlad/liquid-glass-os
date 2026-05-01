@@ -349,7 +349,7 @@ function createCustomApp(name, url, idFromStorage) {
   const icon = document.createElement("div");
   icon.className = "desktop-icon";
   icon.dataset.appId = id;
-  icon.innerHTML = `<div class="icon-circle">⬡</div><span>${name}</span>`;
+  icon.innerHTML = `<div class="icon-circle glass">⬡</div><span>${name}</span>`;
   desktop.appendChild(icon);
 
   const dock = document.getElementById("dock-custom-apps");
