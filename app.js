@@ -1,3 +1,4 @@
+// app.js
 let currentUser = "Guest";
 
 const windows = {
@@ -37,6 +38,7 @@ function setCurrentUser(name) {
   currentUser = name || "Guest";
   document.getElementById("topbar-user").textContent = currentUser;
   document.getElementById("settings-user").textContent = currentUser;
+  localStorage.setItem("lg_last_user", currentUser);
 }
 
 function showOS() {
@@ -106,7 +108,6 @@ function setupAuth() {
       return;
     }
 
-    // login
     if (!accounts[user] || accounts[user].password !== pass) {
       status.textContent = "Invalid username or password.";
       return;
@@ -115,7 +116,6 @@ function setupAuth() {
     showOS();
   });
 
-  // auto-login last user if exists
   const lastUser = localStorage.getItem("lg_last_user");
   if (lastUser && getAccounts()[lastUser]) {
     currentUser = lastUser;
@@ -129,7 +129,7 @@ function openWindow(name) {
   const win = document.getElementById(id);
   win.classList.remove("hidden");
   bringToFront(win);
-  centerWindow(win);
+  if (!win.style.left || !win.style.top) centerWindow(win);
 }
 
 function bringToFront(win) {
@@ -152,6 +152,8 @@ function setupTrafficLights() {
   });
 }
 
+/* Smooth window dragging */
+
 function setupWindowDrag() {
   document.querySelectorAll(".window").forEach(win => {
     const header = win.querySelector("[data-drag-handle]");
@@ -161,14 +163,20 @@ function setupWindowDrag() {
     let startX = 0, startY = 0, startLeft = 0, startTop = 0;
 
     header.addEventListener("mousedown", e => {
+      if (e.button !== 0) return;
       if (e.target.closest(".dot")) return;
+
       dragging = true;
       bringToFront(win);
       const rect = win.getBoundingClientRect();
+
+      startLeft = parseFloat(win.style.left || rect.left);
+      startTop = parseFloat(win.style.top || rect.top);
       startX = e.clientX;
       startY = e.clientY;
-      startLeft = rect.left;
-      startTop = rect.top;
+
+      document.body.style.userSelect = "none";
+
       document.addEventListener("mousemove", onMove);
       document.addEventListener("mouseup", onUp);
     });
@@ -182,7 +190,9 @@ function setupWindowDrag() {
     }
 
     function onUp() {
+      if (!dragging) return;
       dragging = false;
+      document.body.style.userSelect = "";
       document.removeEventListener("mousemove", onMove);
       document.removeEventListener("mouseup", onUp);
     }
@@ -206,7 +216,7 @@ function setupBrowser() {
   const go = document.getElementById("browser-go");
   const frame = document.getElementById("browser-frame");
 
-  const defaultUrl = "https://nebulo.bostoncareercounselor.com/test";
+  const defaultUrl = "https://cdn.jsdelivr.net/gh/immlad/wisp-glass-browser/src/index.html";
   input.value = defaultUrl;
 
   function nav(urlOverride) {
@@ -465,13 +475,18 @@ function setupWidgetDrag() {
     let startX = 0, startY = 0, startLeft = 0, startTop = 0;
 
     widget.addEventListener("mousedown", e => {
+      if (e.button !== 0) return;
       dragging = true;
       widget.classList.add("widget-dragging");
+
       const rect = widget.getBoundingClientRect();
+      startLeft = parseFloat(widget.style.left || rect.left);
+      startTop = parseFloat(widget.style.top || rect.top);
       startX = e.clientX;
       startY = e.clientY;
-      startLeft = rect.left;
-      startTop = rect.top;
+
+      document.body.style.userSelect = "none";
+
       document.addEventListener("mousemove", onMove);
       document.addEventListener("mouseup", onUp);
     });
@@ -491,6 +506,7 @@ function setupWidgetDrag() {
       if (!dragging) return;
       dragging = false;
       widget.classList.remove("widget-dragging");
+      document.body.style.userSelect = "";
       document.removeEventListener("mousemove", onMove);
       document.removeEventListener("mouseup", onUp);
       snapWidget(widget);
@@ -540,11 +556,10 @@ function setupDesktopIcons() {
   const container = document.getElementById("desktop-icons");
   const icons = Array.from(container.querySelectorAll(".desktop-icon"));
 
-  // initial grid positions
   const cols = 4;
   const cellW = 90;
   const cellH = 90;
-  const startX = - (cols * cellW) / 2 + cellW / 2;
+  const startX = -(cols * cellW) / 2 + cellW / 2;
   const startY = 0;
 
   icons.forEach((icon, i) => {
@@ -569,12 +584,16 @@ function setupDesktopIconDrag(icon) {
   let startX = 0, startY = 0, startLeft = 0, startTop = 0;
 
   icon.addEventListener("mousedown", e => {
+    if (e.button !== 0) return;
     dragging = true;
     const rect = icon.getBoundingClientRect();
+    startLeft = parseFloat(icon.style.left || rect.left);
+    startTop = parseFloat(icon.style.top || rect.top);
     startX = e.clientX;
     startY = e.clientY;
-    startLeft = rect.left;
-    startTop = rect.top;
+
+    document.body.style.userSelect = "none";
+
     document.addEventListener("mousemove", onMove);
     document.addEventListener("mouseup", onUp);
   });
@@ -590,6 +609,7 @@ function setupDesktopIconDrag(icon) {
   function onUp() {
     if (!dragging) return;
     dragging = false;
+    document.body.style.userSelect = "";
     document.removeEventListener("mousemove", onMove);
     document.removeEventListener("mouseup", onUp);
     snapDesktopIcon(icon);
