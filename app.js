@@ -133,7 +133,7 @@ function setupBrowser() {
 
 function setupMovies() {
   const frame = document.getElementById("movies-frame");
-  const movieUrl = "https://nebulo.bostoncareercounselor.com/uv/service/hvtrs8%2F-wuw%2Cckngb%7B.ed";
+  const movieUrl = "https://nebulo.bostoncareercounselor.com/uv/service/hvtrs8%2F-wuw%2Cckngb%7B.qc";
   frame.src = movieUrl;
 }
 
