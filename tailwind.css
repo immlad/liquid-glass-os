@@ -1,9 +1,18 @@
 /* ----------------------------------------------------
-   LIQUID GLASS OS — CUSTOM TAILWIND EXTENSIONS
+   AURORA / LIQUID GLASS OS — CUSTOM TAILWIND EXTENSIONS
+   Montserrat + macOS UI + Liquid Glass
    Works with Tailwind CDN
 ---------------------------------------------------- */
 
-/* Aurora / White Liquid Glass Variables */
+/* Import Montserrat */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap');
+
+/* Global font */
+* {
+  font-family: 'Montserrat', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Liquid Glass Variables */
 :root {
   --glass-bg: rgba(255, 255, 255, 0.22);
   --glass-bg-strong: rgba(255, 255, 255, 0.35);
@@ -25,7 +34,7 @@
   color: var(--glass-text);
 }
 
-/* Stronger glass (for headers, topbar, dock) */
+/* Stronger glass (topbar, dock, window headers) */
 .glass-strong {
   background: var(--glass-bg-strong);
   backdrop-filter: blur(calc(var(--glass-blur) * 0.8)) saturate(180%);
@@ -36,16 +45,58 @@
   color: var(--glass-text);
 }
 
-/* Desktop icon circles */
+/* macOS Dock */
+.dock {
+  position: fixed;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 18px;
+  border-radius: 22px;
+  z-index: 60;
+}
+
+/* Dock icons */
+.dock-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  transition: transform 0.15s ease, margin-bottom 0.15s ease;
+}
+
+.dock-icon:hover {
+  transform: translateY(-6px) scale(1.15);
+}
+
+/* Desktop icons */
+.desktop-icons {
+  position: absolute;
+  top: 80px;
+  left: 40px;
+  display: grid;
+  grid-template-columns: repeat(4, 90px);
+  gap: 22px;
+}
+
 .icon-glass {
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-border);
-  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
   box-shadow: 0 4px 14px var(--glass-shadow);
 }
 
-/* Window container */
+/* macOS Window */
 .window {
   position: absolute;
   width: 640px;
@@ -66,20 +117,25 @@
   border-bottom: 1px solid var(--glass-border);
 }
 
-/* macOS dots */
+/* macOS traffic lights */
+.window-controls {
+  display: flex;
+  align-items: center;
+  margin-right: 8px;
+}
+
 .window-controls .dot {
   width: 12px;
   height: 12px;
   border-radius: 50%;
   margin-right: 6px;
-  display: inline-block;
 }
 
 .dot[data-role="close"] { background: #ff5f57; }
 .dot[data-role="minimize"] { background: #ffbd2e; }
 .dot[data-role="fullscreen"] { background: #28c840; }
 
-/* Window fullscreen mode */
+/* Window fullscreen */
 .window-fullscreen {
   top: 50px !important;
   left: 10px !important;
@@ -100,27 +156,6 @@
   width: 100%;
   height: 100%;
   border: none;
-}
-
-/* Dock */
-.dock {
-  position: fixed;
-  bottom: 18px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 10px 18px;
-  z-index: 60;
-  border-radius: 22px;
-}
-
-/* Desktop grid */
-.desktop-icons {
-  position: absolute;
-  top: 80px;
-  left: 40px;
-  display: grid;
-  grid-template-columns: repeat(4, 90px);
-  gap: 22px;
 }
 
 /* Topbar */
