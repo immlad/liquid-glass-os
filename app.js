@@ -1,4 +1,3 @@
-// app.js
 let currentUser = "Guest";
 
 const windows = {
@@ -20,17 +19,108 @@ function centerWindow(win) {
   win.style.top = (vh - rect.height) / 2 + "px";
 }
 
-function showLogin() {
-  document.getElementById("boot-screen").classList.add("hidden");
-  document.getElementById("login-screen").classList.remove("hidden");
+/* AUTH / ACCOUNTS (localStorage) */
+
+function getAccounts() {
+  try {
+    return JSON.parse(localStorage.getItem("lg_accounts") || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function saveAccounts(accounts) {
+  localStorage.setItem("lg_accounts", JSON.stringify(accounts));
+}
+
+function setCurrentUser(name) {
+  currentUser = name || "Guest";
+  document.getElementById("topbar-user").textContent = currentUser;
+  document.getElementById("settings-user").textContent = currentUser;
 }
 
 function showOS() {
-  document.getElementById("login-screen").classList.add("hidden");
+  document.getElementById("boot-screen").classList.add("hidden");
   document.getElementById("os-shell").classList.remove("hidden");
-  document.getElementById("topbar-user").textContent = currentUser;
-  document.getElementById("settings-user").textContent = currentUser;
+  setCurrentUser(currentUser);
   addNotification("Welcome", `Signed in as ${currentUser}`);
+}
+
+function setupAuth() {
+  const tabLogin = document.getElementById("auth-tab-login");
+  const tabSignup = document.getElementById("auth-tab-signup");
+  const username = document.getElementById("auth-username");
+  const password = document.getElementById("auth-password");
+  const passwordConfirm = document.getElementById("auth-password-confirm");
+  const submit = document.getElementById("auth-submit");
+  const status = document.getElementById("auth-status");
+
+  let mode = "login";
+
+  function setMode(m) {
+    mode = m;
+    if (mode === "login") {
+      tabLogin.classList.add("auth-tab-active");
+      tabSignup.classList.remove("auth-tab-active");
+      passwordConfirm.classList.add("hidden");
+      submit.textContent = "Log in";
+      status.textContent = "";
+    } else {
+      tabSignup.classList.add("auth-tab-active");
+      tabLogin.classList.remove("auth-tab-active");
+      passwordConfirm.classList.remove("hidden");
+      submit.textContent = "Sign up";
+      status.textContent = "";
+    }
+  }
+
+  tabLogin.addEventListener("click", () => setMode("login"));
+  tabSignup.addEventListener("click", () => setMode("signup"));
+
+  submit.addEventListener("click", () => {
+    const user = (username.value || "").trim();
+    const pass = (password.value || "").trim();
+    const pass2 = (passwordConfirm.value || "").trim();
+    if (!user || !pass) {
+      status.textContent = "Enter username and password.";
+      return;
+    }
+    const accounts = getAccounts();
+
+    if (mode === "signup") {
+      if (pass !== pass2) {
+        status.textContent = "Passwords do not match.";
+        return;
+      }
+      if (accounts[user]) {
+        status.textContent = "Username already exists.";
+        return;
+      }
+      accounts[user] = { password: pass };
+      saveAccounts(accounts);
+      status.textContent = "Account created. You can log in now.";
+      setMode("login");
+      username.value = user;
+      password.value = "";
+      passwordConfirm.value = "";
+      return;
+    }
+
+    // login
+    if (!accounts[user] || accounts[user].password !== pass) {
+      status.textContent = "Invalid username or password.";
+      return;
+    }
+    currentUser = user;
+    showOS();
+  });
+
+  // auto-login last user if exists
+  const lastUser = localStorage.getItem("lg_last_user");
+  if (lastUser && getAccounts()[lastUser]) {
+    currentUser = lastUser;
+    showOS();
+  }
 }
 
 function openWindow(name) {
@@ -40,8 +130,6 @@ function openWindow(name) {
   win.classList.remove("hidden");
   bringToFront(win);
   centerWindow(win);
-  win.classList.add("window-open");
-  setTimeout(() => win.classList.remove("window-open"), 200);
 }
 
 function bringToFront(win) {
@@ -64,7 +152,7 @@ function setupTrafficLights() {
   });
 }
 
-function setupDrag() {
+function setupWindowDrag() {
   document.querySelectorAll(".window").forEach(win => {
     const header = win.querySelector("[data-drag-handle]");
     if (!header) return;
@@ -111,6 +199,8 @@ function setupLaunchers() {
   });
 }
 
+/* Browser / Apps */
+
 function setupBrowser() {
   const input = document.getElementById("browser-url");
   const go = document.getElementById("browser-go");
@@ -149,6 +239,8 @@ function setupChat() {
   addNotification("Chat", "Liquid Aura Chat loaded from jsDelivr");
 }
 
+/* Clock + widgets */
+
 function setupClock() {
   const el = document.getElementById("topbar-clock");
   const widgetTime = document.getElementById("widget-clock-time");
@@ -156,17 +248,17 @@ function setupClock() {
 
   function tick() {
     const now = new Date();
-    el.textContent = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    if (widgetTime) {
-      widgetTime.textContent = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    }
-    if (widgetDate) {
-      widgetDate.textContent = now.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
-    }
+    const timeStr = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const dateStr = now.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
+    if (el) el.textContent = timeStr;
+    if (widgetTime) widgetTime.textContent = timeStr;
+    if (widgetDate) widgetDate.textContent = dateStr;
   }
   tick();
   setInterval(tick, 30000);
 }
+
+/* Theme + wallpaper */
 
 function setupTheme() {
   document.querySelectorAll("[data-theme]").forEach(btn => {
@@ -227,7 +319,8 @@ function setupWallpapers() {
   });
 }
 
-// Notifications
+/* Notifications */
+
 function addNotification(title, message) {
   const list = document.getElementById("notifications-list");
   const li = document.createElement("li");
@@ -256,13 +349,14 @@ function updateNotificationWidgetCount() {
   if (el) el.textContent = String(count);
 }
 
-// Web App Creator
+/* Web App Creator */
+
 function setupCreator() {
   const nameInput = document.getElementById("creator-name");
   const urlInput = document.getElementById("creator-url");
   const addBtn = document.getElementById("creator-add");
   const status = document.getElementById("creator-status");
-  const desktop = document.querySelector(".desktop-icons");
+  const desktop = document.getElementById("desktop-icons");
 
   addBtn.addEventListener("click", () => {
     const name = (nameInput.value || "").trim();
@@ -274,7 +368,7 @@ function setupCreator() {
 
     const id = "custom-" + Date.now();
     const icon = document.createElement("div");
-    icon.className = "flex flex-col items-center gap-1 cursor-pointer";
+    icon.className = "desktop-icon";
     icon.setAttribute("data-app", id);
     icon.innerHTML = `
       <div class="icon-glass">🌐</div>
@@ -302,20 +396,20 @@ function setupCreator() {
 
     windows[id] = "window-" + id;
     setupTrafficLights();
-    setupDrag();
-    icon.addEventListener("click", () => openWindow(id));
+    setupWindowDrag();
+    icon.addEventListener("dblclick", () => openWindow(id));
+    setupDesktopIconDrag(icon);
 
     status.textContent = `Added "${name}" to desktop.`;
     addNotification("Web App Creator", `Added ${name}`);
   });
 }
 
-// Widgets
+/* Widgets */
 
 function setupWidgets() {
   setupWidgetDrag();
 
-  // Weather (simple demo, static city + random temp)
   const weatherMain = document.getElementById("widget-weather-main");
   const weatherTemp = document.getElementById("widget-weather-temp");
   if (weatherMain && weatherTemp) {
@@ -324,13 +418,11 @@ function setupWidgets() {
     weatherTemp.textContent = `${temp}°C • Clear`;
   }
 
-  // Now Playing
   const nowBtn = document.getElementById("widget-nowplaying-open");
   if (nowBtn) {
     nowBtn.addEventListener("click", () => openWindow("music"));
   }
 
-  // Notifications widget
   const notifBtn = document.getElementById("widget-notifs-open");
   if (notifBtn) {
     notifBtn.addEventListener("click", () => openWindow("notifications"));
@@ -364,7 +456,8 @@ function setupSystemWidget() {
   setInterval(update, 30000);
 }
 
-// Widget drag with snap (A3)
+/* Widget drag + snap */
+
 function setupWidgetDrag() {
   const widgets = document.querySelectorAll(".widget");
   widgets.forEach(widget => {
@@ -415,11 +508,11 @@ function snapWidget(widget) {
   const centerY = rect.top + rect.height / 2;
 
   const positions = [
-    { name: "top-left", x: margin, y: 60 },
-    { name: "top-right", x: vw - rect.width - margin, y: 60 },
-    { name: "bottom-left", x: margin, y: vh - rect.height - margin - 60 },
-    { name: "bottom-right", x: vw - rect.width - margin, y: vh - rect.height - margin - 60 },
-    { name: "bottom-center", x: (vw - rect.width) / 2, y: vh - rect.height - margin - 60 },
+    { x: margin, y: 64 },
+    { x: vw - rect.width - margin, y: 64 },
+    { x: margin, y: vh - rect.height - margin - 60 },
+    { x: vw - rect.width - margin, y: vh - rect.height - margin - 60 },
+    { x: (vw - rect.width) / 2, y: vh - rect.height - margin - 60 },
   ];
 
   let best = positions[0];
@@ -441,18 +534,94 @@ function snapWidget(widget) {
   widget.style.transform = "none";
 }
 
-// Init
-window.addEventListener("DOMContentLoaded", () => {
-  setTimeout(showLogin, 1200);
+/* Desktop icons drag + snap */
 
-  document.getElementById("login-button").addEventListener("click", () => {
-    const name = (document.getElementById("login-name").value || "").trim();
-    currentUser = name || "Guest";
-    showOS();
+function setupDesktopIcons() {
+  const container = document.getElementById("desktop-icons");
+  const icons = Array.from(container.querySelectorAll(".desktop-icon"));
+
+  // initial grid positions
+  const cols = 4;
+  const cellW = 90;
+  const cellH = 90;
+  const startX = - (cols * cellW) / 2 + cellW / 2;
+  const startY = 0;
+
+  icons.forEach((icon, i) => {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    const x = startX + col * cellW;
+    const y = startY + row * cellH;
+    icon.style.position = "absolute";
+    icon.style.left = `calc(50% + ${x}px)`;
+    icon.style.top = `${80 + y}px`;
+    setupDesktopIconDrag(icon);
+    icon.addEventListener("dblclick", () => {
+      const app = icon.getAttribute("data-app");
+      openWindow(app);
+      if (app === "notifications") clearNotificationBadge();
+    });
+  });
+}
+
+function setupDesktopIconDrag(icon) {
+  let dragging = false;
+  let startX = 0, startY = 0, startLeft = 0, startTop = 0;
+
+  icon.addEventListener("mousedown", e => {
+    dragging = true;
+    const rect = icon.getBoundingClientRect();
+    startX = e.clientX;
+    startY = e.clientY;
+    startLeft = rect.left;
+    startTop = rect.top;
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
   });
 
+  function onMove(e) {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    icon.style.left = startLeft + dx + "px";
+    icon.style.top = startTop + dy + "px";
+  }
+
+  function onUp() {
+    if (!dragging) return;
+    dragging = false;
+    document.removeEventListener("mousemove", onMove);
+    document.removeEventListener("mouseup", onUp);
+    snapDesktopIcon(icon);
+  }
+}
+
+function snapDesktopIcon(icon) {
+  const rect = icon.getBoundingClientRect();
+  const vw = window.innerWidth;
+  const cellW = 90;
+  const cellH = 90;
+  const offsetTop = 80;
+
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+
+  const col = Math.round((centerX - vw / 2) / cellW);
+  const row = Math.max(0, Math.round((centerY - offsetTop) / cellH));
+
+  const x = col * cellW;
+  const y = row * cellH;
+
+  icon.style.left = `calc(50% + ${x}px)`;
+  icon.style.top = `${offsetTop + y}px`;
+}
+
+/* INIT */
+
+window.addEventListener("DOMContentLoaded", () => {
+  setupAuth();
   setupTrafficLights();
-  setupDrag();
+  setupWindowDrag();
   setupLaunchers();
   setupBrowser();
   setupMovies();
@@ -463,4 +632,5 @@ window.addEventListener("DOMContentLoaded", () => {
   setupWallpapers();
   setupCreator();
   setupWidgets();
+  setupDesktopIcons();
 });
