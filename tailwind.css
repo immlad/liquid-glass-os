@@ -7,9 +7,10 @@
 /* Import Montserrat */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap');
 
-/* Global font */
+/* Global font + center text by default */
 * {
   font-family: 'Montserrat', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  text-align: center;
 }
 
 /* Liquid Glass Variables */
@@ -89,7 +90,8 @@
 .desktop-icons {
   position: absolute;
   top: 80px;
-  left: 40px;
+  left: 50%;
+  transform: translateX(-50%);
   display: grid;
   grid-template-columns: repeat(4, 90px);
   gap: 22px;
