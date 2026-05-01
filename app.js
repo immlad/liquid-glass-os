@@ -1,3 +1,4 @@
+// app.js
 let currentUser = "Guest";
 
 const windows = {
@@ -144,14 +145,24 @@ function setupMusic() {
 
 function setupChat() {
   const frame = document.getElementById("chat-frame");
-  frame.src = "https://cdn.jsdelivr.net/gh/immlad/liquid-aura/liquid-aura/dist/index.html";
+  frame.src = "https://cdn.jsdelivr.net/gh/immlad/liquid-aura/dist/";
   addNotification("Chat", "Liquid Aura Chat loaded from jsDelivr");
 }
 
 function setupClock() {
   const el = document.getElementById("topbar-clock");
+  const widgetTime = document.getElementById("widget-clock-time");
+  const widgetDate = document.getElementById("widget-clock-date");
+
   function tick() {
-    el.textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const now = new Date();
+    el.textContent = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    if (widgetTime) {
+      widgetTime.textContent = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    }
+    if (widgetDate) {
+      widgetDate.textContent = now.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
+    }
   }
   tick();
   setInterval(tick, 30000);
@@ -161,7 +172,7 @@ function setupTheme() {
   document.querySelectorAll("[data-theme]").forEach(btn => {
     btn.addEventListener("click", () => {
       const theme = btn.getAttribute("data-theme");
-      document.body.style.backgroundImage = ""; // clear custom wallpaper
+      document.body.style.backgroundImage = "";
 
       if (theme === "white") {
         document.body.style.background =
@@ -227,6 +238,7 @@ function addNotification(title, message) {
                   <div class="text-[10px] opacity-60 mt-1">${time}</div>`;
   list.prepend(li);
   showNotificationBadge();
+  updateNotificationWidgetCount();
 }
 
 function showNotificationBadge() {
@@ -235,6 +247,13 @@ function showNotificationBadge() {
 
 function clearNotificationBadge() {
   document.getElementById("notif-badge").classList.add("hidden");
+}
+
+function updateNotificationWidgetCount() {
+  const list = document.getElementById("notifications-list");
+  const count = list ? list.children.length : 0;
+  const el = document.getElementById("widget-notifs-count");
+  if (el) el.textContent = String(count);
 }
 
 // Web App Creator
@@ -291,6 +310,137 @@ function setupCreator() {
   });
 }
 
+// Widgets
+
+function setupWidgets() {
+  setupWidgetDrag();
+
+  // Weather (simple demo, static city + random temp)
+  const weatherMain = document.getElementById("widget-weather-main");
+  const weatherTemp = document.getElementById("widget-weather-temp");
+  if (weatherMain && weatherTemp) {
+    weatherMain.textContent = "Portland";
+    const temp = 16 + Math.floor(Math.random() * 6);
+    weatherTemp.textContent = `${temp}°C • Clear`;
+  }
+
+  // Now Playing
+  const nowBtn = document.getElementById("widget-nowplaying-open");
+  if (nowBtn) {
+    nowBtn.addEventListener("click", () => openWindow("music"));
+  }
+
+  // Notifications widget
+  const notifBtn = document.getElementById("widget-notifs-open");
+  if (notifBtn) {
+    notifBtn.addEventListener("click", () => openWindow("notifications"));
+  }
+
+  updateNotificationWidgetCount();
+  setupSystemWidget();
+}
+
+function setupSystemWidget() {
+  const cpuEl = document.getElementById("widget-system-cpu");
+  const ramEl = document.getElementById("widget-system-ram");
+  const batEl = document.getElementById("widget-system-battery");
+
+  function update() {
+    if (cpuEl) cpuEl.textContent = `CPU: ${30 + Math.floor(Math.random() * 40)}%`;
+    if (ramEl) ramEl.textContent = `RAM: ${40 + Math.floor(Math.random() * 40)}%`;
+
+    if (navigator.getBattery) {
+      navigator.getBattery().then(b => {
+        if (batEl) batEl.textContent = `Battery: ${Math.round(b.level * 100)}%`;
+      }).catch(() => {
+        if (batEl) batEl.textContent = "Battery: --%";
+      });
+    } else if (batEl) {
+      batEl.textContent = "Battery: --%";
+    }
+  }
+
+  update();
+  setInterval(update, 30000);
+}
+
+// Widget drag with snap (A3)
+function setupWidgetDrag() {
+  const widgets = document.querySelectorAll(".widget");
+  widgets.forEach(widget => {
+    let dragging = false;
+    let startX = 0, startY = 0, startLeft = 0, startTop = 0;
+
+    widget.addEventListener("mousedown", e => {
+      dragging = true;
+      widget.classList.add("widget-dragging");
+      const rect = widget.getBoundingClientRect();
+      startX = e.clientX;
+      startY = e.clientY;
+      startLeft = rect.left;
+      startTop = rect.top;
+      document.addEventListener("mousemove", onMove);
+      document.addEventListener("mouseup", onUp);
+    });
+
+    function onMove(e) {
+      if (!dragging) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      widget.style.left = startLeft + dx + "px";
+      widget.style.top = startTop + dy + "px";
+      widget.style.right = "auto";
+      widget.style.bottom = "auto";
+      widget.style.transform = "none";
+    }
+
+    function onUp() {
+      if (!dragging) return;
+      dragging = false;
+      widget.classList.remove("widget-dragging");
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+      snapWidget(widget);
+    }
+  });
+}
+
+function snapWidget(widget) {
+  const margin = 16;
+  const rect = widget.getBoundingClientRect();
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+
+  const positions = [
+    { name: "top-left", x: margin, y: 60 },
+    { name: "top-right", x: vw - rect.width - margin, y: 60 },
+    { name: "bottom-left", x: margin, y: vh - rect.height - margin - 60 },
+    { name: "bottom-right", x: vw - rect.width - margin, y: vh - rect.height - margin - 60 },
+    { name: "bottom-center", x: (vw - rect.width) / 2, y: vh - rect.height - margin - 60 },
+  ];
+
+  let best = positions[0];
+  let bestDist = Infinity;
+  positions.forEach(pos => {
+    const dx = centerX - (pos.x + rect.width / 2);
+    const dy = centerY - (pos.y + rect.height / 2);
+    const d = dx * dx + dy * dy;
+    if (d < bestDist) {
+      bestDist = d;
+      best = pos;
+    }
+  });
+
+  widget.style.left = best.x + "px";
+  widget.style.top = best.y + "px";
+  widget.style.right = "auto";
+  widget.style.bottom = "auto";
+  widget.style.transform = "none";
+}
+
 // Init
 window.addEventListener("DOMContentLoaded", () => {
   setTimeout(showLogin, 1200);
@@ -312,4 +462,5 @@ window.addEventListener("DOMContentLoaded", () => {
   setupTheme();
   setupWallpapers();
   setupCreator();
+  setupWidgets();
 });
