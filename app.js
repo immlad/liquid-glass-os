@@ -133,7 +133,7 @@ function setupBrowser() {
 
 function setupMovies() {
   const frame = document.getElementById("movies-frame");
-  const movieUrl = "https://nebulo.bostoncareercounselor.com/uv/service/hvtrs8%2F-wuw%2Cckngb%7B.qc";
+  const movieUrl = "https://nebulo.bostoncareercounselor.com/uv/service/hvtrs8%2F-wuw%2Cckngb%7B.qc-";
   frame.src = movieUrl;
 }
 
@@ -143,35 +143,9 @@ function setupMusic() {
 }
 
 function setupChat() {
-  const messagesEl = document.getElementById("chat-messages");
-  const input = document.getElementById("chat-input");
-  const sendBtn = document.getElementById("chat-send");
-
-  function addMessage(text, fromUser = true) {
-    const div = document.createElement("div");
-    div.className = "px-3 py-2 rounded-full inline-block glass-strong text-[11px]";
-    div.textContent = text;
-    const wrapper = document.createElement("div");
-    wrapper.className = "w-full flex justify-center";
-    wrapper.appendChild(div);
-    messagesEl.appendChild(wrapper);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-  }
-
-  function send() {
-    const text = (input.value || "").trim();
-    if (!text) return;
-    addMessage(text, true);
-    input.value = "";
-    setTimeout(() => {
-      addMessage("Echo: " + text, false);
-    }, 400);
-  }
-
-  sendBtn.addEventListener("click", send);
-  input.addEventListener("keydown", e => e.key === "Enter" && send());
-
-  addMessage("Welcome to Liquid Glass Chat.");
+  const frame = document.getElementById("chat-frame");
+  frame.src = "https://cdn.jsdelivr.net/gh/immlad/liquid-aura/liquid-aura/dist/index.html";
+  addNotification("Chat", "Liquid Aura Chat loaded from jsDelivr");
 }
 
 function setupClock() {
@@ -187,6 +161,8 @@ function setupTheme() {
   document.querySelectorAll("[data-theme]").forEach(btn => {
     btn.addEventListener("click", () => {
       const theme = btn.getAttribute("data-theme");
+      document.body.style.backgroundImage = ""; // clear custom wallpaper
+
       if (theme === "white") {
         document.body.style.background =
           "radial-gradient(circle at top, #ffffff 0, #e5e7eb 40%, #e5e7eb 100%)";
@@ -197,7 +173,7 @@ function setupTheme() {
         document.body.style.background =
           "radial-gradient(circle at top, #ffffff 0, #e0f2fe 30%, #e0e7ff 60%, #f5d0fe 100%)";
       }
-      document.body.style.backgroundImage = "";
+
       addNotification("Theme", `Switched to ${theme} theme`);
     });
   });
@@ -208,6 +184,7 @@ function setupWallpapers() {
     btn.addEventListener("click", () => {
       const wp = btn.getAttribute("data-wallpaper");
       document.body.style.backgroundImage = "";
+
       if (wp === "sky") {
         document.body.style.background =
           "radial-gradient(circle at top, #e0f2fe 0, #bae6fd 40%, #7dd3fc 100%)";
@@ -218,6 +195,7 @@ function setupWallpapers() {
         document.body.style.background =
           "radial-gradient(circle at top, #ffffff 0, #e0f2fe 30%, #e0e7ff 60%, #f5d0fe 100%)";
       }
+
       addNotification("Wallpaper", `Changed wallpaper to ${wp}`);
     });
   });
@@ -230,7 +208,7 @@ function setupWallpapers() {
     reader.onload = e => {
       document.body.style.backgroundImage = `url('${e.target.result}')`;
       document.body.style.backgroundSize = "cover";
-      document.body.style.backgroundPosition = "center";
+      document.body.style.backgroundPosition = "center center";
       document.body.style.backgroundRepeat = "no-repeat";
       addNotification("Wallpaper", "Custom wallpaper applied");
     };
