@@ -3,6 +3,7 @@ let currentUser = "Guest";
 const windows = {
   browser: "window-browser",
   movies: "window-movies",
+  music: "window-music",
   chat: "window-chat",
   settings: "window-settings",
   notifications: "window-notifications",
@@ -136,9 +137,41 @@ function setupMovies() {
   frame.src = movieUrl;
 }
 
+function setupMusic() {
+  const frame = document.getElementById("music-frame");
+  frame.src = "https://vapor.onl/page/music";
+}
+
 function setupChat() {
-  const frame = document.getElementById("chat-frame");
-  frame.src = "https://cdn.jsdelivr.net/gh/immlad/liquid-aura/liquid-aura/dist/index.html";
+  const messagesEl = document.getElementById("chat-messages");
+  const input = document.getElementById("chat-input");
+  const sendBtn = document.getElementById("chat-send");
+
+  function addMessage(text, fromUser = true) {
+    const div = document.createElement("div");
+    div.className = "px-3 py-2 rounded-full inline-block glass-strong text-[11px]";
+    div.textContent = text;
+    const wrapper = document.createElement("div");
+    wrapper.className = "w-full flex justify-center";
+    wrapper.appendChild(div);
+    messagesEl.appendChild(wrapper);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function send() {
+    const text = (input.value || "").trim();
+    if (!text) return;
+    addMessage(text, true);
+    input.value = "";
+    setTimeout(() => {
+      addMessage("Echo: " + text, false);
+    }, 400);
+  }
+
+  sendBtn.addEventListener("click", send);
+  input.addEventListener("keydown", e => e.key === "Enter" && send());
+
+  addMessage("Welcome to Liquid Glass Chat.");
 }
 
 function setupClock() {
@@ -164,7 +197,7 @@ function setupTheme() {
         document.body.style.background =
           "radial-gradient(circle at top, #ffffff 0, #e0f2fe 30%, #e0e7ff 60%, #f5d0fe 100%)";
       }
-      document.body.style.backgroundImage = ""; // clear custom wallpaper
+      document.body.style.backgroundImage = "";
       addNotification("Theme", `Switched to ${theme} theme`);
     });
   });
@@ -295,6 +328,7 @@ window.addEventListener("DOMContentLoaded", () => {
   setupLaunchers();
   setupBrowser();
   setupMovies();
+  setupMusic();
   setupChat();
   setupClock();
   setupTheme();
