@@ -500,7 +500,7 @@ function getChatUserName() {
 
 function connectChatcordSocket() {
   try {
-    chatSocket = io(); // connects to same origin where server.js runs
+    chatSocket = io("https://liquid-aura.vercel.app/app"); // connects to same origin where server.js runs
   } catch (e) {
     console.error("Socket.io not available", e);
     return;
