@@ -23,8 +23,8 @@
   <div id="login-screen" class="hidden fixed inset-0 flex items-center justify-center">
     <div class="glass login-panel text-center">
       <div class="text-lg font-semibold mb-3">Welcome</div>
-      <input id="login-name" class="w-full mb-3 p-2 rounded border border-white/60 bg-white/70 text-sm text-center" placeholder="Enter your name" />
-      <button id="login-button" class="w-full p-2 rounded bg-white/85 border border-white/70 text-sm hover:bg-white">
+      <input id="login-name" class="w-full mb-3 p-2 rounded-full border border-white/60 bg-white/70 text-sm text-center" placeholder="Enter your name" />
+      <button id="login-button" class="w-full p-2 rounded-full bg-white/85 border border-white/70 text-sm hover:bg-white">
         Enter Liquid Glass
       </button>
     </div>
@@ -34,7 +34,7 @@
   <div id="os-shell" class="os-shell hidden">
 
     <!-- TOPBAR -->
-    <div class="topbar glass-strong flex items-center justify-between px-4 text-center">
+    <div class="topbar glass-strong flex items-center justify-between px-4 text-center rounded-b-2xl">
       <div class="flex items-center gap-2">
         <span class="text-lg">⌘</span>
         <span class="font-semibold text-sm">Liquid Glass OS</span>
@@ -55,6 +55,10 @@
         <div class="flex flex-col items-center gap-1 cursor-pointer" data-app="browser">
           <div class="icon-glass">⌘</div>
           <span class="text-[11px] mt-1">Browser</span>
+        </div>
+        <div class="flex flex-col items-center gap-1 cursor-pointer" data-app="movies">
+          <div class="icon-glass">▶</div>
+          <span class="text-[11px] mt-1">Movies</span>
         </div>
         <div class="flex flex-col items-center gap-1 cursor-pointer" data-app="chat">
           <div class="icon-glass">✉</div>
@@ -80,8 +84,9 @@
     </div>
 
     <!-- DOCK (icons only, no text) -->
-    <div class="dock glass-strong flex items-center gap-4">
+    <div class="dock glass-strong flex items-center gap-4 rounded-3xl">
       <button class="dock-icon" data-app="browser">⌘</button>
+      <button class="dock-icon" data-app="movies">▶</button>
       <button class="dock-icon" data-app="chat">✉</button>
       <button class="dock-icon" data-app="settings">⚙</button>
       <button class="dock-icon" data-app="notifications">🔔</button>
@@ -92,7 +97,7 @@
     <!-- WINDOWS -->
 
     <!-- Browser -->
-    <div id="window-browser" class="window glass hidden" style="left:120px;top:120px;">
+    <div id="window-browser" class="window glass hidden">
       <div class="window-header" data-drag-handle>
         <div class="window-controls">
           <span class="dot" data-role="close"></span>
@@ -101,17 +106,32 @@
         </div>
         <div class="text-xs font-medium flex-1 text-center">Liquid Browser</div>
       </div>
-      <div class="window-body flex flex-col text-center">
+      <div class="window-body flex flex-col text-center rounded-b-2xl">
         <div class="p-2 flex gap-2 border-b border-white/40">
-          <input id="browser-url" class="flex-1 p-1 rounded border border-white/60 bg-white/75 text-xs text-center" placeholder="Type a URL" />
-          <button id="browser-go" class="px-3 py-1 rounded border bg-white/85 text-xs">Go</button>
+          <input id="browser-url" class="flex-1 p-1 rounded-full border border-white/60 bg-white/75 text-xs text-center" placeholder="Type a URL" />
+          <button id="browser-go" class="px-3 py-1 rounded-full border bg-white/85 text-xs">Go</button>
         </div>
-        <iframe id="browser-frame" class="window-iframe"></iframe>
+        <iframe id="browser-frame" class="window-iframe rounded-b-2xl"></iframe>
+      </div>
+    </div>
+
+    <!-- Movies -->
+    <div id="window-movies" class="window glass hidden">
+      <div class="window-header" data-drag-handle>
+        <div class="window-controls">
+          <span class="dot" data-role="close"></span>
+          <span class="dot" data-role="minimize"></span>
+          <span class="dot" data-role="fullscreen"></span>
+        </div>
+        <div class="text-xs font-medium flex-1 text-center">Movies</div>
+      </div>
+      <div class="window-body text-center rounded-b-2xl">
+        <iframe id="movies-frame" class="window-iframe rounded-b-2xl"></iframe>
       </div>
     </div>
 
     <!-- Chat -->
-    <div id="window-chat" class="window glass hidden" style="left:220px;top:160px;">
+    <div id="window-chat" class="window glass hidden">
       <div class="window-header" data-drag-handle>
         <div class="window-controls">
           <span class="dot" data-role="close"></span>
@@ -120,13 +140,13 @@
         </div>
         <div class="text-xs font-medium flex-1 text-center">Liquid Glass Chat</div>
       </div>
-      <div class="window-body text-center">
-        <iframe id="chat-frame" class="window-iframe"></iframe>
+      <div class="window-body text-center rounded-b-2xl">
+        <iframe id="chat-frame" class="window-iframe rounded-b-2xl"></iframe>
       </div>
     </div>
 
     <!-- Settings -->
-    <div id="window-settings" class="window glass hidden" style="left:180px;top:200px;">
+    <div id="window-settings" class="window glass hidden">
       <div class="window-header" data-drag-handle>
         <div class="window-controls">
           <span class="dot" data-role="close"></span>
@@ -135,7 +155,7 @@
         </div>
         <div class="text-xs font-medium flex-1 text-center">Settings</div>
       </div>
-      <div class="window-body p-4 text-xs space-y-4 overflow-auto text-center">
+      <div class="window-body p-4 text-xs space-y-4 overflow-auto text-center rounded-b-2xl">
         <div>
           <div class="font-semibold mb-1">Profile</div>
           <div>Signed in as <span id="settings-user" class="font-medium">Guest</span></div>
@@ -143,24 +163,28 @@
         <div>
           <div class="font-semibold mb-1">Theme</div>
           <div class="flex gap-2 justify-center">
-            <button class="px-3 py-1 rounded bg-white/85 border text-[11px]" data-theme="aurora">Aurora</button>
-            <button class="px-3 py-1 rounded bg-white/50 border text-[11px]" data-theme="white">White</button>
-            <button class="px-3 py-1 rounded bg-slate-900 text-white border text-[11px]" data-theme="dark">Dark</button>
+            <button class="px-3 py-1 rounded-full bg-white/85 border text-[11px]" data-theme="aurora">Aurora</button>
+            <button class="px-3 py-1 rounded-full bg-white/50 border text-[11px]" data-theme="white">White</button>
+            <button class="px-3 py-1 rounded-full bg-slate-900 text-white border text-[11px]" data-theme="dark">Dark</button>
           </div>
         </div>
         <div>
           <div class="font-semibold mb-1">Wallpapers</div>
-          <div class="flex gap-2 justify-center">
-            <button class="px-3 py-1 rounded bg-white/80 border text-[11px]" data-wallpaper="aurora">Aurora</button>
-            <button class="px-3 py-1 rounded bg-sky-100 border text-[11px]" data-wallpaper="sky">Sky</button>
-            <button class="px-3 py-1 rounded bg-slate-200 border text-[11px]" data-wallpaper="neutral">Neutral</button>
+          <div class="flex gap-2 justify-center mb-2">
+            <button class="px-3 py-1 rounded-full bg-white/80 border text-[11px]" data-wallpaper="aurora">Aurora</button>
+            <button class="px-3 py-1 rounded-full bg-sky-100 border text-[11px]" data-wallpaper="sky">Sky</button>
+            <button class="px-3 py-1 rounded-full bg-slate-200 border text-[11px]" data-wallpaper="neutral">Neutral</button>
+          </div>
+          <div class="space-y-1">
+            <div class="text-[11px] opacity-80">Upload custom wallpaper</div>
+            <input id="wallpaper-upload" type="file" accept="image/*" class="w-full text-[11px]" />
           </div>
         </div>
       </div>
     </div>
 
     <!-- Notifications -->
-    <div id="window-notifications" class="window glass hidden" style="left:260px;top:140px;">
+    <div id="window-notifications" class="window glass hidden">
       <div class="window-header" data-drag-handle>
         <div class="window-controls">
           <span class="dot" data-role="close"></span>
@@ -169,13 +193,13 @@
         </div>
         <div class="text-xs font-medium flex-1 text-center">Notifications</div>
       </div>
-      <div class="window-body p-3 text-xs overflow-auto text-center">
+      <div class="window-body p-3 text-xs overflow-auto text-center rounded-b-2xl">
         <ul id="notifications-list" class="space-y-2"></ul>
       </div>
     </div>
 
     <!-- App Store -->
-    <div id="window-appstore" class="window glass hidden" style="left:200px;top:180px;">
+    <div id="window-appstore" class="window glass hidden">
       <div class="window-header" data-drag-handle>
         <div class="window-controls">
           <span class="dot" data-role="close"></span>
@@ -184,26 +208,26 @@
         </div>
         <div class="text-xs font-medium flex-1 text-center">App Store</div>
       </div>
-      <div class="window-body p-4 text-xs overflow-auto text-center">
+      <div class="window-body p-4 text-xs overflow-auto text-center rounded-b-2xl">
         <div class="font-semibold mb-2">App Store (Placeholder)</div>
         <div class="opacity-80 mb-4">Future: install mini web apps into your OS.</div>
         <div class="grid grid-cols-2 gap-3 text-center">
-          <div class="glass-strong px-3 py-3 rounded-lg">
+          <div class="glass-strong px-3 py-3 rounded-2xl">
             <div class="text-sm font-semibold mb-1">Notes</div>
             <div class="text-[11px] opacity-80 mb-2">Simple sticky notes app.</div>
-            <button class="px-2 py-1 rounded bg-white/85 border text-[11px]" disabled>Coming soon</button>
+            <button class="px-2 py-1 rounded-full bg-white/85 border text-[11px]" disabled>Coming soon</button>
           </div>
-          <div class="glass-strong px-3 py-3 rounded-lg">
+          <div class="glass-strong px-3 py-3 rounded-2xl">
             <div class="text-sm font-semibold mb-1">Music</div>
             <div class="text-[11px] opacity-80 mb-2">Stream your favorite tracks.</div>
-            <button class="px-2 py-1 rounded bg-white/85 border text-[11px]" disabled>Coming soon</button>
+            <button class="px-2 py-1 rounded-full bg-white/85 border text-[11px]" disabled>Coming soon</button>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Web App Creator -->
-    <div id="window-creator" class="window glass hidden" style="left:220px;top:200px;">
+    <div id="window-creator" class="window glass hidden">
       <div class="window-header" data-drag-handle>
         <div class="window-controls">
           <span class="dot" data-role="close"></span>
@@ -212,13 +236,13 @@
         </div>
         <div class="text-xs font-medium flex-1 text-center">Web App Creator</div>
       </div>
-      <div class="window-body p-4 text-xs overflow-auto text-center">
+      <div class="window-body p-4 text-xs overflow-auto text-center rounded-b-2xl">
         <div class="font-semibold mb-2">Create a Web App Shortcut</div>
         <div class="space-y-2 mb-3">
-          <input id="creator-name" class="w-full p-2 rounded border border-white/60 bg-white/75 text-[11px] text-center" placeholder="App name" />
-          <input id="creator-url" class="w-full p-2 rounded border border-white/60 bg-white/75 text-[11px] text-center" placeholder="App URL (https://...)" />
+          <input id="creator-name" class="w-full p-2 rounded-full border border-white/60 bg-white/75 text-[11px] text-center" placeholder="App name" />
+          <input id="creator-url" class="w-full p-2 rounded-full border border-white/60 bg-white/75 text-[11px] text-center" placeholder="App URL (https://...)" />
         </div>
-        <button id="creator-add" class="px-3 py-1 rounded bg-white/85 border text-[11px] mb-3">
+        <button id="creator-add" class="px-3 py-1 rounded-full bg-white/85 border text-[11px] mb-3">
           Add to Desktop
         </button>
         <div id="creator-status" class="text-[11px] opacity-80"></div>
