@@ -1,6 +1,31 @@
-/* ------------------------------
-   GLOBAL LIQUID GLASS VARIABLES
------------------------------- */
+/* RESET / BASE */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Segoe UI", sans-serif;
+  background: radial-gradient(circle at top, #ffffff 0, #dfe7f3 40%, #c3d0e4 100%);
+  color: #111;
+}
+
+body {
+  overflow: hidden;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* GLASS VARIABLES */
 :root {
   --glass-bg: rgba(255, 255, 255, 0.28);
   --glass-border: rgba(255, 255, 255, 0.45);
@@ -10,9 +35,7 @@
   --glass-text: #111;
 }
 
-/* ------------------------------
-   BASE GLASS EFFECT
------------------------------- */
+/* GENERIC GLASS */
 .glass {
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur)) saturate(180%);
@@ -23,10 +46,42 @@
   color: var(--glass-text);
 }
 
-/* ------------------------------
-   TOPBAR (white frosted)
------------------------------- */
+/* OS SHELL / DESKTOP LAYOUT */
+.os-shell {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.desktop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* WALLPAPER VARIANTS */
+.wallpaper-1 {
+  background: radial-gradient(circle at top, #ffffff 0, #dfe7f3 40%, #c3d0e4 100%);
+}
+
+.wallpaper-2 {
+  background: radial-gradient(circle at top, #ffffff 0, #f3e7ff 40%, #d9c4ff 100%);
+}
+
+.wallpaper-3 {
+  background: radial-gradient(circle at top, #ffffff 0, #e7fff3 40%, #c4ffd9 100%);
+}
+
+/* TOPBAR */
 .topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 38px;
   display: flex;
   align-items: center;
@@ -36,48 +91,128 @@
   backdrop-filter: blur(var(--glass-blur));
   border-bottom: 1px solid var(--glass-border);
   color: var(--glass-text);
+  z-index: 50;
 }
 
-/* ------------------------------
-   DOCK (white frosted)
------------------------------- */
+.topbar-left,
+.topbar-center,
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.topbar-logo {
+  font-size: 18px;
+}
+
+.topbar-title {
+  font-weight: 600;
+}
+
+.topbar-btn,
+.topbar-icon {
+  border: none;
+  background: transparent;
+  color: var(--glass-text);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+
+.topbar-btn:hover,
+.topbar-icon:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* DOCK */
 .dock {
   position: fixed;
   bottom: 18px;
   left: 50%;
   transform: translateX(-50%);
   padding: 10px 18px;
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
   border-radius: 22px;
-  box-shadow: 0 8px 28px var(--glass-shadow);
+  z-index: 60;
+}
+
+.dock-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dock-icon {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
 }
 
 .dock-icon-wrapper {
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 22px;
   color: var(--glass-text);
 }
 
-/* ------------------------------
-   WINDOWS (white liquid glass)
------------------------------- */
-.window {
+/* DESKTOP ICONS */
+.desktop-icons {
   position: absolute;
-  width: 620px;
-  height: 420px;
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
-  border-radius: var(--glass-radius);
-  box-shadow: 0 12px 32px var(--glass-shadow);
-  overflow: hidden;
+  top: 80px;
+  left: 40px;
+  display: grid;
+  grid-template-columns: repeat(4, 90px);
+  grid-auto-rows: 90px;
+  gap: 22px;
+}
+
+.desktop-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
   color: var(--glass-text);
 }
 
-/* ------------------------------
-   WINDOW HEADER (white frosted)
------------------------------- */
+.desktop-icon span {
+  font-size: 12px;
+}
+
+.icon-circle {
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  box-shadow: 0 4px 14px var(--glass-shadow);
+}
+
+/* WINDOWS */
+.window {
+  position: absolute;
+  width: 640px;
+  height: 440px;
+  top: 160px;
+  left: 160px;
+  overflow: hidden;
+  z-index: 20;
+}
+
+.window-fullscreen {
+  top: 50px !important;
+  left: 10px !important;
+  width: calc(100% - 20px) !important;
+  height: calc(100% - 70px) !important;
+}
+
 .window-header {
   height: 34px;
   display: flex;
@@ -89,7 +224,12 @@
   color: var(--glass-text);
 }
 
-/* macOS dots */
+.window-controls {
+  display: flex;
+  align-items: center;
+  margin-right: 8px;
+}
+
 .window-controls .dot {
   width: 12px;
   height: 12px;
@@ -110,9 +250,11 @@
   background: #28c840;
 }
 
-/* ------------------------------
-   WINDOW BODY
------------------------------- */
+.window-title {
+  font-size: 13px;
+  font-weight: 500;
+}
+
 .window-body {
   height: calc(100% - 34px);
   background: rgba(255, 255, 255, 0.18);
@@ -120,28 +262,117 @@
   color: var(--glass-text);
 }
 
-/* ------------------------------
-   DESKTOP ICONS
------------------------------- */
-.desktop-icon .icon-circle {
-  width: 54px;
-  height: 54px;
-  border-radius: 14px;
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 26px;
-  color: var(--glass-text);
-  box-shadow: 0 4px 14px var(--glass-shadow);
+/* IFRAMES */
+.window-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
 }
 
-/* ------------------------------
-   NOTIFICATIONS WINDOW
------------------------------- */
+/* BROWSER BAR */
+.browser-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.browser-bar input {
+  flex: 1;
+  padding: 4px 6px;
+  border-radius: 8px;
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.browser-bar button {
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+}
+
+.browser-status {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+/* PLACEHOLDER WINDOWS */
+.placeholder-window {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.placeholder-icon {
+  font-size: 32px;
+}
+
+/* SETTINGS */
+.settings-body {
+  padding: 12px;
+  overflow: auto;
+}
+
+.settings-section {
+  margin-bottom: 16px;
+}
+
+.settings-section h2 {
+  margin: 0 0 6px;
+  font-size: 14px;
+}
+
+.theme-row,
+.wallpaper-row {
+  display: flex;
+  gap: 8px;
+}
+
+.theme-pill,
+.wallpaper-thumb {
+  background: rgba(255, 255, 255, 0.35);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(14px);
+  border-radius: 12px;
+  padding: 6px 12px;
+  color: var(--glass-text);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+/* WEB APP CREATOR */
+.webapp-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.webapp-form input {
+  padding: 4px 6px;
+  border-radius: 8px;
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.webapp-form button {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+}
+
+/* NOTIFICATIONS */
 .notifications-list {
+  list-style: none;
+  margin: 0;
   padding: 12px;
   color: var(--glass-text);
 }
@@ -153,105 +384,51 @@
   border-radius: 12px;
   padding: 10px;
   margin-bottom: 10px;
+  font-size: 12px;
 }
 
-/* ------------------------------
-   SETTINGS BUTTONS
------------------------------- */
-.theme-pill,
-.wallpaper-thumb {
-  background: rgba(255, 255, 255, 0.35);
-  border: 1px solid var(--glass-border);
-  backdrop-filter: blur(14px);
-  border-radius: 12px;
-  padding: 8px 14px;
-  color: var(--glass-text);
-  cursor: pointer;
+.notification-item-title {
+  font-weight: 600;
+  margin-bottom: 2px;
 }
 
-/* ------------------------------
-   LOGIN SCREEN
------------------------------- */
-.login-panel {
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
-  border-radius: 18px;
-  padding: 24px;
-  box-shadow: 0 8px 28px var(--glass-shadow);
-  color: var(--glass-text);
+.notification-item-time {
+  font-size: 11px;
+  opacity: 0.7;
 }
 
-/* ------------------------------
-   BOOT SCREEN
------------------------------- */
+.notif-badge {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #ff3b30;
+  margin-left: 4px;
+}
+
+/* LOGIN / BOOT */
 .boot-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   background: white;
   color: var(--glass-text);
-}
-/* ---------------------------------------
-   RESTORE OS LAYOUT (CRITICAL FIX)
---------------------------------------- */
-
-/* Make OS shell fill the screen */
-.os-shell {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+  z-index: 100;
 }
 
-/* Desktop covers full screen */
-.desktop {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+.boot-logo {
+  font-size: 40px;
+  margin-bottom: 10px;
 }
 
-/* Desktop icons grid */
-.desktop-icons {
-  position: absolute;
-  top: 80px;
-  left: 40px;
-  display: grid;
-  grid-template-columns: repeat(4, 90px);
-  grid-auto-rows: 90px;
-  gap: 22px;
+.boot-text {
+  font-size: 16px;
+  opacity: 0.7;
 }
 
-/* Windows float above desktop */
-.window {
-  position: absolute;
-  width: 640px;
-  height: 440px;
-  top: 160px;
-  left: 160px;
-  z-index: 20;
-}
-
-/* Topbar stays at top */
-.topbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 38px;
-  z-index: 50;
-}
-
-/* Dock stays at bottom */
-.dock {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 60;
-}
-
-/* Login screen centered */
 .login-screen {
   position: fixed;
   inset: 0;
@@ -260,20 +437,62 @@
   justify-content: center;
 }
 
-/* Boot screen covers everything */
-.boot-screen {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
+.login-panel {
+  width: 280px;
+  padding: 20px;
 }
 
-/* Window iframe fills body */
-.window-iframe {
+.login-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.login-subtitle {
+  margin-top: 14px;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.login-panel input {
   width: 100%;
-  height: 100%;
-  border: none;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--glass-border);
+  margin-bottom: 8px;
+}
+
+.login-panel button {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+}
+
+/* PROFILE LIST */
+.profile-list {
+  max-height: 160px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.profile-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.profile-item button {
+  margin-left: 4px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
 }
