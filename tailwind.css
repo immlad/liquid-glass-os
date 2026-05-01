@@ -1,6 +1,6 @@
 /* ----------------------------------------------------
    LIQUID GLASS OS — CUSTOM TAILWIND EXTENSIONS
-   Montserrat + macOS UI + Liquid Glass
+   Montserrat + macOS UI + Liquid Glass + Animations
    Works with Tailwind CDN
 ---------------------------------------------------- */
 
@@ -20,7 +20,7 @@
   --glass-border: rgba(255, 255, 255, 0.55);
   --glass-shadow: rgba(15, 23, 42, 0.35);
   --glass-blur: 22px;
-  --glass-radius: 18px;
+  --glass-radius: 22px;
   --glass-text: #0f172a;
 }
 
@@ -65,7 +65,7 @@
   left: 50%;
   transform: translateX(-50%);
   padding: 10px 18px;
-  border-radius: 22px;
+  border-radius: 999px;
   z-index: 60;
 }
 
@@ -73,17 +73,21 @@
 .dock-icon {
   width: 48px;
   height: 48px;
-  border-radius: 14px;
+  border-radius: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 26px;
   cursor: pointer;
-  transition: transform 0.15s ease, margin-bottom 0.15s ease;
+  transition: transform 0.18s ease, margin-bottom 0.18s ease, box-shadow 0.18s ease;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.35);
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(18px);
 }
 
 .dock-icon:hover {
-  transform: translateY(-6px) scale(1.15);
+  transform: translateY(-8px) scale(1.18);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.5);
 }
 
 /* Desktop icons */
@@ -100,7 +104,7 @@
 .icon-glass {
   width: 54px;
   height: 54px;
-  border-radius: 14px;
+  border-radius: 18px;
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-border);
@@ -109,6 +113,12 @@
   justify-content: center;
   font-size: 26px;
   box-shadow: 0 4px 14px var(--glass-shadow);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.icon-glass:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.45);
 }
 
 /* macOS Window */
@@ -119,6 +129,15 @@
   overflow: hidden;
   z-index: 20;
   border-radius: var(--glass-radius);
+  opacity: 1;
+  transform: scale(1);
+  transition: transform 0.18s ease, opacity 0.18s ease, box-shadow 0.18s ease;
+}
+
+/* open animation */
+.window-open {
+  transform: scale(1.03);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.55);
 }
 
 /* Window header */
@@ -130,6 +149,8 @@
   background: var(--glass-bg-strong);
   backdrop-filter: blur(18px);
   border-bottom: 1px solid var(--glass-border);
+  border-top-left-radius: var(--glass-radius);
+  border-top-right-radius: var(--glass-radius);
 }
 
 /* macOS traffic lights */
@@ -164,6 +185,8 @@
   background: rgba(255, 255, 255, 0.18);
   backdrop-filter: blur(18px);
   color: var(--glass-text);
+  border-bottom-left-radius: var(--glass-radius);
+  border-bottom-right-radius: var(--glass-radius);
 }
 
 /* Iframe */
@@ -171,6 +194,8 @@
   width: 100%;
   height: 100%;
   border: none;
+  border-bottom-left-radius: var(--glass-radius);
+  border-bottom-right-radius: var(--glass-radius);
 }
 
 /* Topbar */
@@ -199,6 +224,7 @@
 .login-panel {
   width: 280px;
   padding: 20px;
+  border-radius: var(--glass-radius);
 }
 
 /* Notification badge */
