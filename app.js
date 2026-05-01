@@ -1,4 +1,4 @@
-// ---------- PROFILES ----------
+// ---------- PROFILE STORAGE ----------
 function loadProfiles() {
   try {
     const raw = localStorage.getItem("lgosProfiles");
@@ -17,6 +17,9 @@ function setActiveProfile(profile) {
   localStorage.setItem("lgosActiveProfile", JSON.stringify(profile));
   const topUser = document.getElementById("topbar-user");
   if (topUser) topUser.textContent = profile.name || "Guest";
+
+  const settingsName = document.getElementById("settings-profile-name");
+  if (settingsName) settingsName.textContent = profile.name || "Guest";
 }
 
 function getActiveProfile() {
@@ -31,6 +34,7 @@ function getActiveProfile() {
 
 function renderProfileList() {
   const list = document.getElementById("profile-list");
+  if (!list) return;
   const profiles = loadProfiles();
   list.innerHTML = "";
 
@@ -66,20 +70,20 @@ function renderProfileList() {
   });
 }
 
-// ---------- BOOT + LOGIN FLOW ----------
+// ---------- BOOT + LOGIN ----------
 function showLogin() {
   const boot = document.getElementById("boot-screen");
   const login = document.getElementById("login-screen");
-  boot.classList.add("hidden");
-  login.classList.remove("hidden");
+  if (boot) boot.classList.add("hidden");
+  if (login) login.classList.remove("hidden");
   renderProfileList();
 }
 
 function showOS() {
   const login = document.getElementById("login-screen");
   const os = document.getElementById("os-shell");
-  login.classList.add("hidden");
-  os.classList.remove("hidden");
+  if (login) login.classList.add("hidden");
+  if (os) os.classList.remove("hidden");
 
   const active = getActiveProfile();
   if (active) {
@@ -90,37 +94,46 @@ function showOS() {
 }
 
 function setupBootAndLogin() {
-  setTimeout(showLogin, 1800);
+  setTimeout(showLogin, 1500);
 
   const loginBtn = document.getElementById("login-button");
-  loginBtn.addEventListener("click", () => {
-    const name = document.getElementById("login-name").value.trim() || "Guest";
-    const profiles = loadProfiles();
-    const profile = { id: Date.now(), name };
-    profiles.push(profile);
-    saveProfiles(profiles);
-    setActiveProfile(profile);
-    showOS();
-    addNotification("Profile", `Created and signed in as ${name}`);
-  });
+  if (loginBtn) {
+    loginBtn.addEventListener("click", () => {
+      const nameInput = document.getElementById("login-name");
+      const name = (nameInput?.value || "").trim() || "Guest";
+      const profiles = loadProfiles();
+      const profile = { id: Date.now(), name };
+      profiles.push(profile);
+      saveProfiles(profiles);
+      setActiveProfile(profile);
+      showOS();
+      addNotification("Profile", `Created and signed in as ${name}`);
+    });
+  }
 
   const switchUserBtn = document.getElementById("btn-switch-user");
-  switchUserBtn.addEventListener("click", () => {
-    document.getElementById("os-shell").classList.add("hidden");
-    document.getElementById("login-screen").classList.remove("hidden");
-    renderProfileList();
-  });
+  if (switchUserBtn) {
+    switchUserBtn.addEventListener("click", () => {
+      const os = document.getElementById("os-shell");
+      const login = document.getElementById("login-screen");
+      if (os) os.classList.add("hidden");
+      if (login) login.classList.remove("hidden");
+      renderProfileList();
+    });
+  }
 }
 
-// ---------- WINDOW MANAGEMENT ----------
-const windows = {
-  browser: document.getElementById("window-browser"),
-  movies: document.getElementById("window-movies"),
-  settings: document.getElementById("window-settings"),
-  chatcord: document.getElementById("window-chatcord"),
-  appstore: document.getElementById("window-appstore"),
-  notifications: document.getElementById("window-notifications"),
-};
+// ---------- WINDOW REGISTRY ----------
+const windows = {};
+
+function initWindowRegistry() {
+  windows.browser = document.getElementById("window-browser");
+  windows.movies = document.getElementById("window-movies");
+  windows.settings = document.getElementById("window-settings");
+  windows.chatcord = document.getElementById("window-chatcord");
+  windows.appstore = document.getElementById("window-appstore");
+  windows.notifications = document.getElementById("window-notifications");
+}
 
 function openWindow(name) {
   const win = windows[name];
@@ -146,10 +159,10 @@ function toggleFullscreenWindow(win) {
 
 function bringToFront(win) {
   const all = Array.from(document.querySelectorAll(".window"));
-  const maxZ = all.reduce(
-    (max, w) => Math.max(max, parseInt(window.getComputedStyle(w).zIndex || "10", 10)),
-    10
-  );
+  const maxZ = all.reduce((max, w) => {
+    const z = parseInt(window.getComputedStyle(w).zIndex || "10", 10);
+    return Math.max(max, z);
+  }, 10);
   win.style.zIndex = maxZ + 1;
 }
 
@@ -158,7 +171,7 @@ function makeWindowDraggable(win) {
   const header = win.querySelector("[data-drag-handle]");
   if (!header) return;
 
-  let isDragging = false;
+  let dragging = false;
   let startX = 0;
   let startY = 0;
   let startLeft = 0;
@@ -166,8 +179,9 @@ function makeWindowDraggable(win) {
 
   header.addEventListener("mousedown", (e) => {
     if (e.target.closest(".window-controls")) return;
-    isDragging = true;
+    dragging = true;
     bringToFront(win);
+
     const rect = win.getBoundingClientRect();
     const shellRect = document.getElementById("os-shell").getBoundingClientRect();
 
@@ -181,7 +195,7 @@ function makeWindowDraggable(win) {
   });
 
   function onMove(e) {
-    if (!isDragging) return;
+    if (!dragging) return;
     const dx = e.clientX - startX;
     const dy = e.clientY - startY;
     win.style.left = startLeft + dx + "px";
@@ -189,7 +203,7 @@ function makeWindowDraggable(win) {
   }
 
   function onUp() {
-    isDragging = false;
+    dragging = false;
     document.removeEventListener("mousemove", onMove);
     document.removeEventListener("mouseup", onUp);
   }
@@ -199,7 +213,7 @@ function setupWindowDrag() {
   document.querySelectorAll(".window").forEach((win) => makeWindowDraggable(win));
 }
 
-// ---------- macOS TRAFFIC LIGHTS ----------
+// ---------- TRAFFIC LIGHTS ----------
 function setupTrafficLights() {
   document.querySelectorAll(".window").forEach((win) => {
     const controls = win.querySelector(".window-controls");
@@ -221,38 +235,36 @@ function setupTrafficLights() {
   });
 }
 
-// ---------- LAUNCHERS ----------
+// ---------- LAUNCHERS + DOCK ----------
 function setupLaunchers() {
-  document.querySelectorAll("[data-app]").forEach((el) => {
+  document.querySelectorAll(".desktop-icon[data-app]").forEach((el) => {
     el.addEventListener("click", () => {
       const app = el.getAttribute("data-app");
-      if (app === "webapp-creator") {
-        openWindow("settings");
-        document.getElementById("webapp-form").scrollIntoView({ behavior: "smooth" });
-      } else {
-        openWindow(app);
-      }
-    });
-  });
-
-  document.querySelectorAll("[data-open-app]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const app = btn.getAttribute("data-open-app");
       openWindow(app);
     });
   });
 
-  document.getElementById("btn-appstore").addEventListener("click", () => {
-    openWindow("appstore");
+  document.querySelectorAll(".dock-icon[data-app]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const app = btn.getAttribute("data-app");
+      openWindow(app);
+    });
   });
 
-  document.getElementById("btn-notifications").addEventListener("click", () => {
-    openWindow("notifications");
-    clearNotificationBadge();
-  });
+  const appstoreBtn = document.getElementById("btn-appstore");
+  if (appstoreBtn) {
+    appstoreBtn.addEventListener("click", () => openWindow("appstore"));
+  }
+
+  const notifBtn = document.getElementById("btn-notifications");
+  if (notifBtn) {
+    notifBtn.addEventListener("click", () => {
+      openWindow("notifications");
+      clearNotificationBadge();
+    });
+  }
 }
 
-// ---------- DOCK BOUNCE ----------
 function bounceDockIcon(appName) {
   const dockBtn = document.querySelector(`.dock-icon[data-app="${appName}"]`);
   if (!dockBtn) return;
@@ -269,20 +281,12 @@ function bounceDockIcon(appName) {
   }, 180);
 }
 
-// ---------- CLOSE BUTTONS (legacy) ----------
-function setupCloseButtons() {
-  document.querySelectorAll(".btn-close[data-close]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      closeWindow(document.getElementById(btn.getAttribute("data-close")));
-    });
-  });
-}
-
 // ---------- BROWSER ----------
 function setupBrowser() {
   const input = document.getElementById("browser-url");
   const goBtn = document.getElementById("browser-go");
   const frame = document.getElementById("browser-frame");
+  const statusEl = document.getElementById("browser-backend-status");
 
   function navigate() {
     const url = input.value.trim();
@@ -290,18 +294,14 @@ function setupBrowser() {
     frame.src = url.startsWith("http") ? url : "https://" + url;
   }
 
-  goBtn.addEventListener("click", navigate);
-  input.addEventListener("keydown", (e) => e.key === "Enter" && navigate());
-
-  const statusEl = document.getElementById("browser-backend-status");
-  try {
-    const ws = new WebSocket("wss://anura.pro/");
-    ws.addEventListener("open", () => (statusEl.textContent = "connected"));
-    ws.addEventListener("close", () => (statusEl.textContent = "disconnected"));
-    ws.addEventListener("error", () => (statusEl.textContent = "error"));
-  } catch {
-    statusEl.textContent = "error";
+  if (goBtn) goBtn.addEventListener("click", navigate);
+  if (input) {
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") navigate();
+    });
   }
+
+  if (statusEl) statusEl.textContent = "disconnected";
 }
 
 // ---------- THEMES ----------
@@ -322,6 +322,7 @@ function setupThemes() {
 // ---------- WALLPAPERS ----------
 function applyWallpaper(id) {
   const desktop = document.getElementById("desktop");
+  if (!desktop) return;
   desktop.classList.remove("wallpaper-1", "wallpaper-2", "wallpaper-3");
   desktop.classList.add("wallpaper-" + id);
   localStorage.setItem("liquidGlassWallpaper", id);
@@ -348,14 +349,14 @@ function createCustomApp(name, url, idFromStorage) {
   const icon = document.createElement("div");
   icon.className = "desktop-icon";
   icon.dataset.appId = id;
-  icon.innerHTML = `<div class="icon-circle icon-webapp"></div><span>${name}</span>`;
+  icon.innerHTML = `<div class="icon-circle">⬡</div><span>${name}</span>`;
   desktop.appendChild(icon);
 
   const dock = document.getElementById("dock-custom-apps");
   const dockBtn = document.createElement("button");
   dockBtn.className = "dock-icon";
   dockBtn.dataset.appId = id;
-  dockBtn.innerHTML = `<div class="dock-icon-wrapper"><div class="icon-circle icon-webapp"></div></div>`;
+  dockBtn.innerHTML = `<div class="dock-icon-wrapper">⬡</div>`;
   dock.appendChild(dockBtn);
 
   function openCustom() {
@@ -370,27 +371,34 @@ function createCustomApp(name, url, idFromStorage) {
 
 function openWebAppWindow(name, url) {
   const template = document.getElementById("window-webapp-template");
+  if (!template) return;
+
   const win = template.cloneNode(true);
   win.id = "window-" + Date.now();
   win.classList.remove("hidden");
 
-  win.querySelector(".webapp-title").textContent = name;
-  win.querySelector("iframe").src = url;
+  const titleEl = win.querySelector(".webapp-title");
+  if (titleEl) titleEl.textContent = name;
+
+  const iframe = win.querySelector("iframe");
+  if (iframe) iframe.src = url;
 
   const controls = win.querySelector(".window-controls");
-  controls.querySelectorAll(".dot").forEach((dot) => {
-    const role = dot.getAttribute("data-role");
-    dot.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (role === "close") {
-        win.remove();
-      } else if (role === "minimize") {
-        win.classList.add("hidden");
-      } else if (role === "fullscreen") {
-        toggleFullscreenWindow(win);
-      }
+  if (controls) {
+    controls.querySelectorAll(".dot").forEach((dot) => {
+      const role = dot.getAttribute("data-role");
+      dot.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (role === "close") {
+          win.remove();
+        } else if (role === "minimize") {
+          win.classList.add("hidden");
+        } else if (role === "fullscreen") {
+          toggleFullscreenWindow(win);
+        }
+      });
     });
-  });
+  }
 
   document.querySelector(".os-shell").appendChild(win);
   makeWindowDraggable(win);
@@ -421,6 +429,8 @@ function setupWebAppCreator() {
   const urlInput = document.getElementById("webapp-url");
 
   let apps = loadCustomApps();
+
+  if (!form) return;
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -453,6 +463,7 @@ function saveNotifications(notifs) {
 
 function renderNotifications() {
   const list = document.getElementById("notifications-list");
+  if (!list) return;
   const notifs = loadNotifications();
   list.innerHTML = "";
   notifs
@@ -481,98 +492,12 @@ function addNotification(title, message) {
 
 function showNotificationBadge() {
   const badge = document.getElementById("notif-badge");
-  badge.classList.remove("hidden");
+  if (badge) badge.classList.remove("hidden");
 }
 
 function clearNotificationBadge() {
   const badge = document.getElementById("notif-badge");
-  badge.classList.add("hidden");
-}
-
-// ---------- CHATCORD (GLOBAL SOCKET.IO) ----------
-let chatSocket = null;
-let chatCurrentRoom = "general";
-
-function getChatUserName() {
-  const profile = getActiveProfile();
-  return profile?.name || "Guest";
-}
-
-function connectChatcordSocket() {
-  try {
-    chatSocket = io("https://liquid-aura.vercel.app/app"); // connects to same origin where server.js runs
-  } catch (e) {
-    console.error("Socket.io not available", e);
-    return;
-  }
-
-  const user = getChatUserName();
-  chatSocket.emit("joinRoom", { username: user, room: chatCurrentRoom });
-
-  chatSocket.on("message", (msg) => {
-    appendChatMessage(msg);
-  });
-
-  chatSocket.on("roomUsers", ({ room }) => {
-    const label = document.getElementById("chatcord-room-label");
-    if (label) label.textContent = "# " + room;
-  });
-}
-
-function appendChatMessage(msg) {
-  const container = document.getElementById("chatcord-messages");
-  if (!container) return;
-  const div = document.createElement("div");
-  div.className = "chatcord-message";
-  div.innerHTML = `
-    <div class="chatcord-message-user">${msg.username}</div>
-    <div>${msg.text}</div>
-    <div class="chatcord-message-meta">${msg.time}</div>
-  `;
-  container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
-}
-
-function setupChatcord() {
-  const roomList = document.getElementById("chatcord-rooms");
-  const roomLabel = document.getElementById("chatcord-room-label");
-  const userLabel = document.getElementById("chatcord-user-label");
-  const form = document.getElementById("chatcord-form");
-  const input = document.getElementById("chatcord-input");
-
-  userLabel.textContent = getChatUserName();
-
-  // connect socket once
-  connectChatcordSocket();
-
-  roomList.querySelectorAll("li").forEach((li) => {
-    li.addEventListener("click", () => {
-      roomList.querySelectorAll("li").forEach((x) => x.classList.remove("active"));
-      li.classList.add("active");
-      const room = li.getAttribute("data-room");
-      chatCurrentRoom = room;
-      roomLabel.textContent = "# " + room;
-      input.placeholder = "Message #" + room;
-
-      if (chatSocket) {
-        chatSocket.emit("joinRoom", {
-          username: getChatUserName(),
-          room,
-        });
-      }
-
-      const container = document.getElementById("chatcord-messages");
-      container.innerHTML = "";
-    });
-  });
-
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const text = input.value.trim();
-    if (!text || !chatSocket) return;
-    chatSocket.emit("chatMessage", text);
-    input.value = "";
-  });
+  if (badge) badge.classList.add("hidden");
 }
 
 // ---------- WINDOW FOCUS ----------
@@ -585,27 +510,42 @@ function setupWindowFocus() {
 // ---------- CLOCK ----------
 function setupClock() {
   const el = document.getElementById("topbar-clock");
+  if (!el) return;
+
   function tick() {
     const now = new Date();
-    el.textContent = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    el.textContent = now.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   }
+
   tick();
   setInterval(tick, 30000);
 }
 
+// ---------- CHAT (REACT BUILD VIA JSDLVR) ----------
+function setupChatFrame() {
+  const frame = document.getElementById("chatcord-frame");
+  if (!frame) return;
+
+  frame.src =
+    "https://cdn.jsdelivr.net/gh/immlad/liquid-aura/liquid-aura/dist/index.html";
+}
+
 // ---------- INIT ----------
 window.addEventListener("DOMContentLoaded", () => {
+  initWindowRegistry();
   setupBootAndLogin();
   setupLaunchers();
-  setupCloseButtons();
   setupBrowser();
   setupThemes();
   setupWallpapers();
   setupWebAppCreator();
-  setupWindowFocus();
   setupWindowDrag();
   setupTrafficLights();
-  setupChatcord();
+  setupWindowFocus();
   renderNotifications();
   setupClock();
+  setupChatFrame();
 });
