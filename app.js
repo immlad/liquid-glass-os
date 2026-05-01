@@ -5,6 +5,8 @@ const windows = {
   chat: "window-chat",
   settings: "window-settings",
   notifications: "window-notifications",
+  appstore: "window-appstore",
+  creator: "window-creator",
 };
 
 function showLogin() {
@@ -104,6 +106,7 @@ function setupBrowser() {
     const url = (input.value || "").trim();
     if (!url) return;
     frame.src = url.startsWith("http") ? url : "https://" + url;
+    addNotification("Browser", `Opened ${url}`);
   }
 
   go.addEventListener("click", nav);
@@ -131,6 +134,9 @@ function setupTheme() {
       if (theme === "white") {
         document.body.style.background =
           "radial-gradient(circle at top, #ffffff 0, #e5e7eb 40%, #e5e7eb 100%)";
+      } else if (theme === "dark") {
+        document.body.style.background =
+          "radial-gradient(circle at top, #020617 0, #020617 40%, #020617 100%)";
       } else {
         document.body.style.background =
           "radial-gradient(circle at top, #ffffff 0, #e0f2fe 30%, #e0e7ff 60%, #f5d0fe 100%)";
@@ -140,11 +146,30 @@ function setupTheme() {
   });
 }
 
+function setupWallpapers() {
+  document.querySelectorAll("[data-wallpaper]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const wp = btn.getAttribute("data-wallpaper");
+      if (wp === "sky") {
+        document.body.style.background =
+          "radial-gradient(circle at top, #e0f2fe 0, #bae6fd 40%, #7dd3fc 100%)";
+      } else if (wp === "neutral") {
+        document.body.style.background =
+          "radial-gradient(circle at top, #f9fafb 0, #e5e7eb 40%, #d1d5db 100%)";
+      } else {
+        document.body.style.background =
+          "radial-gradient(circle at top, #ffffff 0, #e0f2fe 30%, #e0e7ff 60%, #f5d0fe 100%)";
+      }
+      addNotification("Wallpaper", `Changed wallpaper to ${wp}`);
+    });
+  });
+}
+
 // Notifications
 function addNotification(title, message) {
   const list = document.getElementById("notifications-list");
   const li = document.createElement("li");
-  li.className = "glass-strong px-3 py-2 rounded-lg text-[11px]";
+  li.className = "glass-strong px-3 py-2 rounded-lg text-[11px] text-center";
   const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   li.innerHTML = `<div class="font-semibold mb-0.5">${title}</div>
                   <div class="opacity-80">${message}</div>
@@ -159,6 +184,62 @@ function showNotificationBadge() {
 
 function clearNotificationBadge() {
   document.getElementById("notif-badge").classList.add("hidden");
+}
+
+// Web App Creator
+function setupCreator() {
+  const nameInput = document.getElementById("creator-name");
+  const urlInput = document.getElementById("creator-url");
+  const addBtn = document.getElementById("creator-add");
+  const status = document.getElementById("creator-status");
+  const desktop = document.querySelector(".desktop-icons");
+
+  addBtn.addEventListener("click", () => {
+    const name = (nameInput.value || "").trim();
+    const url = (urlInput.value || "").trim();
+    if (!name || !url) {
+      status.textContent = "Please enter both name and URL.";
+      return;
+    }
+
+    const id = "custom-" + Date.now();
+    const icon = document.createElement("div");
+    icon.className = "flex flex-col items-center gap-1 cursor-pointer";
+    icon.setAttribute("data-app", id);
+    icon.innerHTML = `
+      <div class="icon-glass">🌐</div>
+      <span class="text-[11px] mt-1">${name}</span>
+    `;
+    desktop.appendChild(icon);
+
+    const win = document.createElement("div");
+    win.id = "window-" + id;
+    win.className = "window glass hidden";
+    win.style.left = "240px";
+    win.style.top = "220px";
+    win.innerHTML = `
+      <div class="window-header" data-drag-handle>
+        <div class="window-controls">
+          <span class="dot" data-role="close"></span>
+          <span class="dot" data-role="minimize"></span>
+          <span class="dot" data-role="fullscreen"></span>
+        </div>
+        <div class="text-xs font-medium flex-1 text-center">${name}</div>
+      </div>
+      <div class="window-body text-center">
+        <iframe class="window-iframe" src="${url}"></iframe>
+      </div>
+    `;
+    document.getElementById("os-shell").appendChild(win);
+
+    windows[id] = "window-" + id;
+    setupTrafficLights();
+    setupDrag();
+    icon.addEventListener("click", () => openWindow(id));
+
+    status.textContent = `Added "${name}" to desktop.`;
+    addNotification("Web App Creator", `Added ${name}`);
+  });
 }
 
 // Init
@@ -178,4 +259,6 @@ window.addEventListener("DOMContentLoaded", () => {
   setupChat();
   setupClock();
   setupTheme();
+  setupWallpapers();
+  setupCreator();
 });
