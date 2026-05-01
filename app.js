@@ -1,7 +1,12 @@
-// Simple state
 let currentUser = "Guest";
 
-// Boot + login
+const windows = {
+  browser: "window-browser",
+  chat: "window-chat",
+  settings: "window-settings",
+  notifications: "window-notifications",
+};
+
 function showLogin() {
   document.getElementById("boot-screen").classList.add("hidden");
   document.getElementById("login-screen").classList.remove("hidden");
@@ -12,14 +17,8 @@ function showOS() {
   document.getElementById("os-shell").classList.remove("hidden");
   document.getElementById("topbar-user").textContent = currentUser;
   document.getElementById("settings-user").textContent = currentUser;
+  addNotification("Welcome", `Signed in as ${currentUser}`);
 }
-
-// Windows
-const windows = {
-  browser: "window-browser",
-  chat: "window-chat",
-  settings: "window-settings",
-};
 
 function openWindow(name) {
   const id = windows[name];
@@ -86,17 +85,16 @@ function setupDrag() {
   });
 }
 
-// Launchers + dock
 function setupLaunchers() {
   document.querySelectorAll("[data-app]").forEach(el => {
     el.addEventListener("click", () => {
       const app = el.getAttribute("data-app");
       openWindow(app);
+      if (app === "notifications") clearNotificationBadge();
     });
   });
 }
 
-// Browser
 function setupBrowser() {
   const input = document.getElementById("browser-url");
   const go = document.getElementById("browser-go");
@@ -112,13 +110,11 @@ function setupBrowser() {
   input.addEventListener("keydown", e => e.key === "Enter" && nav());
 }
 
-// Chat iframe
 function setupChat() {
   const frame = document.getElementById("chat-frame");
   frame.src = "https://cdn.jsdelivr.net/gh/immlad/liquid-aura/liquid-aura/dist/index.html";
 }
 
-// Clock
 function setupClock() {
   const el = document.getElementById("topbar-clock");
   function tick() {
@@ -128,7 +124,6 @@ function setupClock() {
   setInterval(tick, 30000);
 }
 
-// Theme buttons (simple demo)
 function setupTheme() {
   document.querySelectorAll("[data-theme]").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -140,13 +135,34 @@ function setupTheme() {
         document.body.style.background =
           "radial-gradient(circle at top, #ffffff 0, #e0f2fe 30%, #e0e7ff 60%, #f5d0fe 100%)";
       }
+      addNotification("Theme", `Switched to ${theme} theme`);
     });
   });
 }
 
+// Notifications
+function addNotification(title, message) {
+  const list = document.getElementById("notifications-list");
+  const li = document.createElement("li");
+  li.className = "glass-strong px-3 py-2 rounded-lg text-[11px]";
+  const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  li.innerHTML = `<div class="font-semibold mb-0.5">${title}</div>
+                  <div class="opacity-80">${message}</div>
+                  <div class="text-[10px] opacity-60 mt-1">${time}</div>`;
+  list.prepend(li);
+  showNotificationBadge();
+}
+
+function showNotificationBadge() {
+  document.getElementById("notif-badge").classList.remove("hidden");
+}
+
+function clearNotificationBadge() {
+  document.getElementById("notif-badge").classList.add("hidden");
+}
+
 // Init
 window.addEventListener("DOMContentLoaded", () => {
-  // Boot → login
   setTimeout(showLogin, 1200);
 
   document.getElementById("login-button").addEventListener("click", () => {
