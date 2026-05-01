@@ -42,7 +42,7 @@
       <div class="flex items-center gap-4 text-xs">
         <span id="topbar-user" class="font-medium">Guest</span>
         <span id="topbar-clock" class="opacity-80"></span>
-        <button id="btn-notifications" class="relative">
+        <button id="btn-notifications" class="relative" data-app="notifications">
           ⦿
           <span id="notif-badge" class="notif-badge hidden"></span>
         </button>
@@ -84,6 +84,38 @@
           <div class="icon-glass">＋</div>
           <span class="text-[11px] mt-1">Web App Creator</span>
         </div>
+      </div>
+
+      <!-- FLOATING WIDGETS (Sonoma-style) -->
+      <div id="widget-clock" class="widget glass-strong widget-corner widget-top-left">
+        <div class="widget-title">Clock</div>
+        <div id="widget-clock-time" class="widget-main text-lg font-semibold"></div>
+        <div id="widget-clock-date" class="widget-sub text-[11px] opacity-80"></div>
+      </div>
+
+      <div id="widget-weather" class="widget glass-strong widget-corner widget-top-right">
+        <div class="widget-title">Weather</div>
+        <div id="widget-weather-main" class="widget-main text-sm font-semibold">Portland</div>
+        <div id="widget-weather-temp" class="widget-sub text-[11px] opacity-80">Loading…</div>
+      </div>
+
+      <div id="widget-nowplaying" class="widget glass-strong widget-corner widget-bottom-left">
+        <div class="widget-title">Now Playing</div>
+        <div id="widget-nowplaying-track" class="widget-main text-[12px] font-semibold">Music app</div>
+        <button id="widget-nowplaying-open" class="widget-button">Open Music</button>
+      </div>
+
+      <div id="widget-system" class="widget glass-strong widget-corner widget-bottom-right">
+        <div class="widget-title">System</div>
+        <div id="widget-system-cpu" class="widget-sub text-[11px] opacity-80">CPU: --%</div>
+        <div id="widget-system-ram" class="widget-sub text-[11px] opacity-80">RAM: --%</div>
+        <div id="widget-system-battery" class="widget-sub text-[11px] opacity-80">Battery: --%</div>
+      </div>
+
+      <div id="widget-notifs" class="widget glass-strong widget-corner widget-bottom-center">
+        <div class="widget-title">Notifications</div>
+        <div id="widget-notifs-count" class="widget-main text-sm font-semibold">0</div>
+        <button id="widget-notifs-open" class="widget-button">Open Center</button>
       </div>
     </div>
 
@@ -150,7 +182,7 @@
       </div>
     </div>
 
-    <!-- Chat (Liquid Aura via jsDelivr) -->
+    <!-- Chat -->
     <div id="window-chat" class="window glass hidden">
       <div class="window-header" data-drag-handle>
         <div class="window-controls">
