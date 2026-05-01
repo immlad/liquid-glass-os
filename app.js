@@ -2,12 +2,21 @@ let currentUser = "Guest";
 
 const windows = {
   browser: "window-browser",
+  movies: "window-movies",
   chat: "window-chat",
   settings: "window-settings",
   notifications: "window-notifications",
   appstore: "window-appstore",
   creator: "window-creator",
 };
+
+function centerWindow(win) {
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const rect = win.getBoundingClientRect();
+  win.style.left = (vw - rect.width) / 2 + "px";
+  win.style.top = (vh - rect.height) / 2 + "px";
+}
 
 function showLogin() {
   document.getElementById("boot-screen").classList.add("hidden");
@@ -28,6 +37,9 @@ function openWindow(name) {
   const win = document.getElementById(id);
   win.classList.remove("hidden");
   bringToFront(win);
+  centerWindow(win);
+  win.classList.add("window-open");
+  setTimeout(() => win.classList.remove("window-open"), 200);
 }
 
 function bringToFront(win) {
@@ -102,15 +114,26 @@ function setupBrowser() {
   const go = document.getElementById("browser-go");
   const frame = document.getElementById("browser-frame");
 
-  function nav() {
-    const url = (input.value || "").trim();
+  const defaultUrl = "https://nebulo.bostoncareercounselor.com/test";
+  input.value = defaultUrl;
+
+  function nav(urlOverride) {
+    const url = (urlOverride || input.value || "").trim();
     if (!url) return;
-    frame.src = url.startsWith("http") ? url : "https://" + url;
-    addNotification("Browser", `Opened ${url}`);
+    const finalUrl = url.startsWith("http") ? url : "https://" + url;
+    frame.src = finalUrl;
+    addNotification("Browser", `Opened ${finalUrl}`);
   }
 
-  go.addEventListener("click", nav);
+  go.addEventListener("click", () => nav());
   input.addEventListener("keydown", e => e.key === "Enter" && nav());
+  nav(defaultUrl);
+}
+
+function setupMovies() {
+  const frame = document.getElementById("movies-frame");
+  const movieUrl = "https://nebulo.bostoncareercounselor.com/uv/service/hvtrs8%2F-wuw%2Cckngb%7B.ed";
+  frame.src = movieUrl;
 }
 
 function setupChat() {
@@ -141,6 +164,7 @@ function setupTheme() {
         document.body.style.background =
           "radial-gradient(circle at top, #ffffff 0, #e0f2fe 30%, #e0e7ff 60%, #f5d0fe 100%)";
       }
+      document.body.style.backgroundImage = ""; // clear custom wallpaper
       addNotification("Theme", `Switched to ${theme} theme`);
     });
   });
@@ -150,6 +174,7 @@ function setupWallpapers() {
   document.querySelectorAll("[data-wallpaper]").forEach(btn => {
     btn.addEventListener("click", () => {
       const wp = btn.getAttribute("data-wallpaper");
+      document.body.style.backgroundImage = "";
       if (wp === "sky") {
         document.body.style.background =
           "radial-gradient(circle at top, #e0f2fe 0, #bae6fd 40%, #7dd3fc 100%)";
@@ -163,13 +188,28 @@ function setupWallpapers() {
       addNotification("Wallpaper", `Changed wallpaper to ${wp}`);
     });
   });
+
+  const upload = document.getElementById("wallpaper-upload");
+  upload.addEventListener("change", () => {
+    const file = upload.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.body.style.backgroundImage = `url('${e.target.result}')`;
+      document.body.style.backgroundSize = "cover";
+      document.body.style.backgroundPosition = "center";
+      document.body.style.backgroundRepeat = "no-repeat";
+      addNotification("Wallpaper", "Custom wallpaper applied");
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
 // Notifications
 function addNotification(title, message) {
   const list = document.getElementById("notifications-list");
   const li = document.createElement("li");
-  li.className = "glass-strong px-3 py-2 rounded-lg text-[11px] text-center";
+  li.className = "glass-strong px-3 py-2 rounded-2xl text-[11px] text-center";
   const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   li.innerHTML = `<div class="font-semibold mb-0.5">${title}</div>
                   <div class="opacity-80">${message}</div>
@@ -215,8 +255,6 @@ function setupCreator() {
     const win = document.createElement("div");
     win.id = "window-" + id;
     win.className = "window glass hidden";
-    win.style.left = "240px";
-    win.style.top = "220px";
     win.innerHTML = `
       <div class="window-header" data-drag-handle>
         <div class="window-controls">
@@ -226,8 +264,8 @@ function setupCreator() {
         </div>
         <div class="text-xs font-medium flex-1 text-center">${name}</div>
       </div>
-      <div class="window-body text-center">
-        <iframe class="window-iframe" src="${url}"></iframe>
+      <div class="window-body text-center rounded-b-2xl">
+        <iframe class="window-iframe rounded-b-2xl" src="${url}"></iframe>
       </div>
     `;
     document.getElementById("os-shell").appendChild(win);
@@ -256,6 +294,7 @@ window.addEventListener("DOMContentLoaded", () => {
   setupDrag();
   setupLaunchers();
   setupBrowser();
+  setupMovies();
   setupChat();
   setupClock();
   setupTheme();
